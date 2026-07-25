@@ -5,7 +5,8 @@
 *.secret
 
 # ── Generated caches. Rebuilt from wiki/ by one command; never commit. ──────
-indexes/
+indexes/*
+!indexes/.gitkeep
 viz/data.js
 system/logs/
 system/nightshift/sparks/

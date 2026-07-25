@@ -84,9 +84,26 @@ if [ "$BLOCKERS" -gt 0 ]; then
 fi
 
 node system/lint-frontmatter.js && ok "every note passes the linter" || { bad "a note failed the linter (see above) — fix it and re-run"; exit 1; }
-node system/build-index.js  > /dev/null && ok "search index built"
-node system/build-graph.js  > /dev/null && ok "graph built"
-node system/build-viz.js    > /dev/null && ok "galaxy data built"
+
+# Each build step must actually succeed. Reporting "Setup finished" over a
+# failed build is exactly the kind of quiet lie this system is built to avoid.
+build_step() { # build_step <label> <script>
+  if node "$2" > /dev/null 2>&1; then
+    ok "$1"
+  else
+    bad "$1 — FAILED. Re-run it to see the error:  node $2"
+    BUILD_FAILED=1
+  fi
+}
+BUILD_FAILED=0
+build_step "search index built" system/build-index.js
+build_step "graph built"        system/build-graph.js
+build_step "galaxy data built"  system/build-viz.js
+
+if [ "$BUILD_FAILED" -ne 0 ]; then
+  printf "\n${RED}Setup did NOT finish.${OFF} A build step failed above — run it directly to see why.\n\n"
+  exit 1
+fi
 
 head_ "5. Try it right now"
 

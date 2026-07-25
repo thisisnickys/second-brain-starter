@@ -32,9 +32,15 @@ function buildIndex(wikiDir) {
   return { byDepartment };
 }
 
+// indexes/ is gitignored (it is a cache), so a fresh clone has no such
+// directory. Create it rather than crashing on the very first command a new
+// user runs.
+function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
+
 function writeIndexes(root) {
   const wikiDir = path.join(root, 'wiki');
   const outDir = path.join(root, 'indexes');
+  ensureDir(outDir);
   const { byDepartment } = buildIndex(wikiDir);
   let master = `# Brain Index\n\nRebuilt by system/build-index.js — do not hand-edit.\n\n`;
   for (const d of DEPARTMENTS) {

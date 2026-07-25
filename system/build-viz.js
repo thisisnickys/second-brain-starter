@@ -158,6 +158,7 @@ function main() {
   for (const an of assetNodes) hubs[an.title] = { departments: an.pos.departments, arms: an.pos.arms };
   const rootsOrder = assetRoots.map(r => r.label);
   const dots = catalogFiles.length > 0 ? assetDotArrays(catalogFiles, rootsOrder, hubs) : { departments: [], arms: [], rootIdx: [] };
+  fs.mkdirSync(path.join(ROOT, 'viz'), { recursive: true });
   fs.writeFileSync(path.join(ROOT, 'viz', 'data.js'),
     'window.BRAIN_DATA = ' + JSON.stringify({ generated: localDate(), counts: graph.counts, nodes: dataNodes, assetNodes, lensMeta }) + ';\n' +
     'window.BRAIN_ASSETS = ' + JSON.stringify({ roots: assetRoots.map((r, i) => ({ ...r, hub: hubs[r.label] })), dots }) + ';\n' +

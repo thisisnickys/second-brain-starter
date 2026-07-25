@@ -139,6 +139,7 @@ function main() {
   const { nodes } = buildGraph(root);
   const counts = {};
   for (const n of nodes) counts[n.type] = (counts[n.type] || 0) + 1;
+  fs.mkdirSync(path.join(root, 'indexes'), { recursive: true });
   fs.writeFileSync(path.join(root, 'indexes', 'graph.json'),
     JSON.stringify({ generated: localDate(), counts, catalogRef: 'files-catalog.json', nodes }));
   console.log(`graph: ${nodes.length} nodes (${Object.entries(counts).map(([k, v]) => `${k}:${v}`).join(' ')})`);
