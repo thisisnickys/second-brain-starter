@@ -1,0 +1,4 @@
+{
+  "_comment": "Notion pages mirrored into the wiki on every ingest. Add YOUR pages here: open a page in Notion, Share -> Copy link, and take the 32-character id at the end of the URL. The page must also be shared with your Notion integration or the ingest will 404 it. An empty pages list is valid and simply skips the Notion mirror.",
+  "pages": []
+}

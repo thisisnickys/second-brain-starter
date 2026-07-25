@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.secondbrain.second-brain-nightshift</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/node</string>
+        <string>__BRAIN_DIR__/system/nightshift/run.js</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__BRAIN_DIR__</string>
+
+    <key>StandardOutPath</key>
+    <string>__HOME__/Library/Logs/second-brain-nightshift.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>__HOME__/Library/Logs/second-brain-nightshift.log</string>
+
+    <!-- Night Shift: 3:30am local, after the 2:30am ingest commits the day.
+         One scoped claude session; failure = loud log + silence to the owner,
+         never a broken half-result. Same-night rerun guard lives in run.js. -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>3</integer>
+        <key>Minute</key>
+        <integer>30</integer>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <!-- PATH must cover: node (/usr/local/bin), claude (~/.local/bin) -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>__HOME__/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>HOME</key>
+        <string>__HOME__</string>
+    </dict>
+</dict>
+</plist>

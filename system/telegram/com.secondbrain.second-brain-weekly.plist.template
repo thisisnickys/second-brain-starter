@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.secondbrain.second-brain-weekly</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/node</string>
+        <string>__BRAIN_DIR__/system/telegram/weekly.js</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__BRAIN_DIR__</string>
+
+    <key>StandardOutPath</key>
+    <string>__HOME__/Library/Logs/second-brain-weekly.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>__HOME__/Library/Logs/second-brain-weekly.log</string>
+
+    <!-- Weekly report: Sunday 10:00pm local. Replaces Sunday's 11:59pm daily
+         evening report (that plist fires Mon–Sat only) and absorbs its
+         housekeeping (health refresh + TickTick sync). One shot per fire —
+         the script sends and exits; no KeepAlive. -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>0</integer>
+        <key>Hour</key>
+        <integer>22</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <!-- PATH must cover: node (/usr/local/bin), ffmpeg (/opt/homebrew/bin),
+         claude (~/.local/bin), say (/usr/bin) -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>__HOME__/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>HOME</key>
+        <string>__HOME__</string>
+    </dict>
+</dict>
+</plist>

@@ -1,0 +1,19 @@
+{
+  "name": "second-brain-starter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A plain-markdown second brain: local files, AI retrieval, a galaxy view, and a Telegram bot. Zero runtime dependencies.",
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "setup": "bash setup.sh",
+    "lint": "node system/lint-frontmatter.js",
+    "build": "node system/build-index.js && node system/build-graph.js && node system/build-viz.js",
+    "ingest": "bash system/ingest/run-ingest.sh",
+    "doctor": "node system/doctor.js",
+    "galaxy": "open viz/index.html",
+    "workbench": "node system/viz-server.js --open",
+    "bot": "node system/telegram/bot.js",
+    "test": "node --test \"tests/**/*.test.js\""
+  }
+}

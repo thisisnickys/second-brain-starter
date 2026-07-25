@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Second Brain</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg:#0A0A0A; --fg:#FFFFFF; --orange:#F95000; --green:#79C753; --muted:#6B6B6B; --panel:#131313; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--fg); font-family:'DM Sans','Helvetica Neue',Helvetica,sans-serif; overflow:hidden; }
+  header { display:flex; align-items:center; gap:14px; padding:10px 18px; border-bottom:1px solid #1e1e1e; position:relative; z-index:5; background:var(--bg); }
+  header h1 { font-family:'Anton','Arial Narrow',sans-serif; font-size:20px; letter-spacing:1px; text-transform:uppercase; white-space:nowrap; }
+  header h1 span { color:var(--orange); }
+  .lens-tabs { display:flex; gap:6px; }
+  .lens-tabs button, #tasks-btn { background:none; border:1px solid #333; color:var(--muted); padding:6px 14px; border-radius:999px; cursor:pointer; font:inherit; font-size:13px; }
+  .lens-tabs button.active { border-color:var(--orange); color:var(--fg); background:rgba(249,80,0,.12); }
+  #tasks-btn { border-color:#2c2c2c; color:var(--green); display:none; }
+  #tasks-btn.on { display:inline-block; }
+  #search { margin-left:auto; background:var(--panel); border:1px solid #333; color:var(--fg); padding:7px 12px; border-radius:8px; width:230px; font:inherit; font-size:13px; }
+  #matchcount { color:var(--muted); font-size:11.5px; min-width:70px; }
+  #meta { color:var(--muted); font-size:11.5px; }
+  #mode { font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); border:1px solid #262626; border-radius:4px; padding:2px 7px; }
+  #mode.live { color:var(--green); border-color:rgba(121,199,83,.4); }
+  #stage { position:relative; width:100vw; height:calc(100vh - 53px); cursor:grab; }
+  #stage.panning { cursor:grabbing; }
+  #stage.grabbing-node { cursor:grabbing; }
+  #stage.over-node { cursor:pointer; }
+  canvas { position:absolute; inset:0; }
+  svg { position:absolute; inset:0; width:100%; height:100%; }
+  .node .shape { transition:opacity .25s, transform .18s; transform-box:fill-box; transform-origin:center; }
+  .node text { font-size:9px; fill:var(--muted); pointer-events:none; opacity:0; transition:opacity .2s; }
+  .node.hot text, .node.selected text { opacity:1; fill:var(--fg); }
+  .node.lo { opacity:.12; }
+  .node.hot .shape { transform:scale(1.5); }
+  .hub-badge { font-family:'Anton','Arial Narrow',sans-serif; font-size:10px; fill:#0A0A0A; pointer-events:none; }
+  .hub-label { font-size:10px; fill:var(--fg); letter-spacing:1.5px; text-transform:uppercase; pointer-events:none; opacity:.85; }
+  .cluster-label { font-family:'Anton','Arial Narrow',sans-serif; font-size:16px; fill:#333; text-transform:uppercase; letter-spacing:3px; pointer-events:none; }
+  .ring { fill:none; stroke:#161616; stroke-width:1; }
+  .edge { stroke:#2a2a2a; stroke-width:1; opacity:.32; pointer-events:none; }
+  .edge.hot { stroke:var(--orange); stroke-width:1.4; opacity:.8; }
+  #halo { fill:none; stroke:var(--orange); stroke-width:1.5; opacity:0; pointer-events:none; }
+  #drawer { position:absolute; top:0; right:0; width:480px; max-width:92vw; height:100%; background:var(--panel); border-left:1px solid #222;
+            transform:translateX(100%); transition:transform .28s; display:flex; flex-direction:column; z-index:6; }
+  #drawer.open { transform:none; }
+  #drawer-head { padding:16px 18px 10px; border-bottom:1px solid #1e1e1e; }
+  #drawer-head .kind { color:var(--orange); font-size:11px; text-transform:uppercase; letter-spacing:1px; }
+  #drawer-head h2 { font-family:'Anton','Arial Narrow',sans-serif; font-size:19px; margin:3px 0 6px; }
+  #drawer-head .meta-line { color:var(--muted); font-size:11.5px; word-break:break-all; }
+  #drawer-actions { display:flex; gap:8px; padding:9px 18px; border-bottom:1px solid #1e1e1e; flex-wrap:wrap; }
+  #drawer-actions button, #drawer-actions a { background:none; border:1px solid #333; color:var(--fg); border-radius:6px; padding:4px 11px; cursor:pointer; font:inherit; font-size:12px; text-decoration:none; }
+  #drawer-actions button:hover, #drawer-actions a:hover { border-color:var(--orange); }
+  #drawer-body { padding:14px 18px 30px; overflow-y:auto; flex:1; font-size:13.5px; line-height:1.55; }
+  #drawer-body h1 { font-size:19px; margin:14px 0 6px; font-family:'Anton','Arial Narrow',sans-serif; }
+  #drawer-body h2 { font-size:16px; margin:14px 0 5px; color:var(--orange); }
+  #drawer-body h3 { font-size:13.5px; margin:12px 0 4px; color:var(--green); }
+  #drawer-body p { margin:7px 0; }
+  #drawer-body ul { margin:6px 0 6px 18px; }
+  #drawer-body pre { background:#0d0d0d; border:1px solid #222; border-radius:6px; padding:9px; overflow-x:auto; font-size:12px; margin:8px 0; }
+  #drawer-body code { background:#1c1c1c; border-radius:3px; padding:0 4px; font-size:12px; }
+  #drawer-body table { border-collapse:collapse; margin:8px 0; font-size:12px; }
+  #drawer-body td, #drawer-body th { border:1px solid #2a2a2a; padding:3px 8px; }
+  #drawer-body hr { border:0; border-top:1px solid #262626; margin:12px 0; }
+  #drawer-body .link { color:var(--green); border-bottom:1px dotted var(--green); }
+  #drawer-body .conn { display:block; padding:5px 0; border-bottom:1px solid #1c1c1c; cursor:pointer; }
+  #drawer-body .conn:hover { color:var(--orange); }
+  #drawer-body .tag { display:inline-block; border:1px solid #333; border-radius:999px; padding:1px 8px; margin:2px 3px 0 0; font-size:11px; color:var(--green); }
+  #drawer-body textarea { width:100%; height:60vh; background:#0d0d0d; color:var(--fg); border:1px solid #333; border-radius:6px; padding:10px; font:12px/1.5 Menlo,monospace; }
+  #drawer-body .err { color:var(--orange); font-size:12px; margin-top:6px; }
+  #drawer-body .task-line { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid #1c1c1c; font-size:12.5px; }
+  #drawer-body .task-line .txt { flex:1; }
+  #drawer-body .task-line button { background:none; border:1px solid #333; color:var(--fg); border-radius:5px; padding:2px 8px; cursor:pointer; font-size:11px; }
+  #close { position:absolute; top:10px; right:12px; background:none; border:none; color:var(--muted); font-size:16px; cursor:pointer; z-index:7; }
+  .legend { position:absolute; left:14px; bottom:12px; font-size:11.5px; color:var(--muted); background:rgba(10,10,10,.85); padding:8px 12px; border-radius:8px; z-index:4; }
+  .legend i { display:inline-block; width:9px; height:9px; border-radius:50%; margin:0 5px 0 10px; }
+  .legend i.first { margin-left:0; }
+  #hint { position:absolute; right:14px; bottom:12px; color:#3c3c3c; font-size:11px; z-index:4; text-align:right; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="brand">My <span>Second Brain</span></h1>
+  <nav class="lens-tabs" id="tabs"></nav>
+  <button id="tasks-btn">Tasks</button>
+  <input id="search" type="search" placeholder="Search the brain…" autocomplete="off">
+  <span id="matchcount"></span>
+  <span id="meta"></span>
+  <span id="mode">read-only</span>
+</header>
+<div id="stage">
+  <canvas id="dots"></canvas>
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur stdDeviation="3.2" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="glow-big" x="-120%" y="-120%" width="340%" height="340%">
+        <feGaussianBlur stdDeviation="7" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <g id="world"></g>
+  </svg>
+  <aside id="drawer"><button id="close">✕</button>
+    <div id="drawer-head"></div>
+    <div id="drawer-actions"></div>
+    <div id="drawer-body"></div>
+  </aside>
+  <div class="legend" id="legend"></div>
+  <div id="hint">drag a node to feel the web · scroll to zoom · drag space to pan</div>
+</div>
+<script src="data.js"></script>
+<script>
+'use strict';
+const D = window.BRAIN_DATA, A = window.BRAIN_ASSETS || { roots: [], dots: { departments: [], arms: [], rootIdx: [] } };
+const C = window.BRAIN_CONFIG || {};
+const LENSES = [["arms","ARMS"],["departments","Departments"],["world", C.customLensLabel || "Life Map"],["behaviors", C.behaviorsLabel || "Five Behaviors"]];
+const DEPT_HUE = C.departmentColors || { _none:"#8a8a8a" };
+if (C.owner) document.getElementById("brand").innerHTML = C.owner + "'s <span>Second Brain</span>";
+const TYPE_COLOR = { file:"#FFFFFF", decision:"#F95000", skill:"#F9A825", app:"#4DC9FF", routine:"#c9a227", task:"#F95000", person:"#ff7ab8" };
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+let lens = "arms", selected = null, hovered = null, serverMode = false;
+const ALL = D.nodes.concat(D.assetNodes);
+const byId = {}; ALL.forEach(n => byId[n.id] = n);
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg"), world = document.getElementById("world");
+const canvas = document.getElementById("dots"), ctx = canvas.getContext("2d");
+const stage = document.getElementById("stage");
+
+// ---------- camera transform (shared canvas + svg) ----------
+const view = { s: 1, tx: 0, ty: 0 };
+function fitView() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  view.s = Math.min(w / 1600, h / 1000) * 0.95;
+  view.tx = (w - 1600 * view.s) / 2; view.ty = (h - 1000 * view.s) / 2;
+}
+function applyView() {
+  world.setAttribute("transform", `translate(${view.tx},${view.ty}) scale(${view.s})`);
+  drawDots();
+}
+function sizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = stage.clientWidth * dpr; canvas.height = stage.clientHeight * dpr;
+  canvas.style.width = stage.clientWidth + "px"; canvas.style.height = stage.clientHeight + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function toWorld(sx, sy) { const r = stage.getBoundingClientRect(); return [ (sx - r.left - view.tx) / view.s, (sy - r.top - view.ty) / view.s ]; }
+
+// ---------- ambient asset starfield (canvas, redrawn only on camera change) ----------
+function drawDots() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (lens !== "departments" && lens !== "arms") return;
+  const arr = A.dots[lens]; if (!arr || !arr.length) return;
+  ctx.save();
+  ctx.translate(view.tx, view.ty); ctx.scale(view.s, view.s);
+  const rootHue = A.roots.map(r => DEPT_HUE[r.department] || DEPT_HUE._none);
+  ctx.globalAlpha = 0.5;
+  const rr = Math.max(0.7, 1.4 / Math.sqrt(view.s));
+  for (let i = 0; i < A.dots.rootIdx.length; i++) {
+    ctx.fillStyle = rootHue[A.dots.rootIdx[i]];
+    ctx.beginPath();
+    ctx.arc(arr[i * 2], arr[i * 2 + 1], rr, 0, 6.2832);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ---------- svg helpers ----------
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  (parent || world).appendChild(e); return e;
+}
+function starPath(r) { const s = r * 0.38; return `M0 ${-r} L${s} ${-s} L${r} 0 L${s} ${s} L0 ${r} L${-s} ${s} L${-r} 0 L${-s} ${-s} Z`; }
+function hexPath(r) { let p = ""; for (let i = 0; i < 6; i++) { const a = Math.PI / 3 * i - Math.PI / 6; p += (i ? "L" : "M") + (r * Math.cos(a)).toFixed(1) + " " + (r * Math.sin(a)).toFixed(1); } return p + "Z"; }
+
+const decorLayer = el("g", {}), edgeLayer = el("g", {}), nodeLayer = el("g", {});
+const halo = el("circle", { id:"halo", r:22 }, nodeLayer);
+function drawDecor() {
+  decorLayer.innerHTML = "";
+  if (lens === "arms") {
+    for (const m of D.lensMeta.arms) {
+      el("ellipse", { cx:800, cy:500, rx:m.ring, ry:m.ring*0.82, class:"ring" }, decorLayer);
+      const t = el("text", { x:800, y:500 - m.ring*0.82 - 8, "text-anchor":"middle", class:"cluster-label" }, decorLayer);
+      t.textContent = m.label;
+    }
+  } else {
+    for (const m of (D.lensMeta[lens] || [])) {
+      const t = el("text", { x:m.at[0], y:m.at[1] - (lens === "world" ? 62 : 128), "text-anchor":"middle", class:"cluster-label" }, decorLayer);
+      t.textContent = m.label.replace(/-/g, " ");
+    }
+  }
+}
+
+// ---------- node elements ----------
+function nodeShape(g, n) {
+  if (n.kind === "asset-root") {
+    const c = DEPT_HUE[n.department] || DEPT_HUE._none;
+    el("circle", { r:15, fill:c, "fill-opacity":.9, filter:"url(#glow-big)", class:"shape" }, g);
+    const b = el("text", { "text-anchor":"middle", dy:"3.5", class:"hub-badge" }, g);
+    b.textContent = n.count > 999 ? (n.count/1000).toFixed(1) + "k" : n.count;
+    const lb = el("text", { y:28, "text-anchor":"middle", class:"hub-label" }, g);
+    lb.textContent = n.title.replace(/^drive-/, "");
+    return;
+  }
+  const color = TYPE_COLOR[n.type] || "#888";
+  if (n.type === "app") el("path", { d:hexPath(9), fill:"#101418", stroke:color, class:"shape", filter:"url(#glow)" }, g);
+  else if (n.type === "skill") el("path", { d:starPath(7), fill:color, "fill-opacity":.9, class:"shape", filter:"url(#glow)" }, g);
+  else if (n.type === "decision") el("circle", { r:7, fill:color, class:"shape", filter:"url(#glow-big)" }, g);
+  else if (n.type === "task") el("circle", { r:5.5, fill:"none", stroke:color, "stroke-width":2, class:"shape" }, g);
+  else if (n.type === "routine") el("path", { d:hexPath(7), fill:color, "fill-opacity":.8, class:"shape" }, g);
+  else {
+    const deg = (n.links ? n.links.length : 0) + (n.inbound ? n.inbound.length : 0);
+    const hue = DEPT_HUE[n.department] || "#FFFFFF";
+    el("circle", { r:Math.min(10, 3.5 + deg * 0.9), fill:hue, "fill-opacity":.9, class:"shape", filter: deg > 2 ? "url(#glow)" : "none" }, g);
+  }
+  const t = el("text", { y:-13, "text-anchor":"middle" }, g); t.textContent = n.title;
+}
+const nodeEls = {};
+function buildNodes() {
+  for (const n of ALL) {
+    const g = el("g", { class:"node" }, nodeLayer);
+    nodeShape(g, n);
+    nodeEls[n.id] = g;
+  }
+}
+
+// ---------- edge web ----------
+const edges = [];
+(function buildEdgeList() {
+  const seen = new Set();
+  for (const n of ALL) for (const l of (n.links || [])) {
+    if (!byId[l] || l === n.id) continue;
+    const k = n.id < l ? n.id + "|" + l : l + "|" + n.id;
+    if (seen.has(k)) continue; seen.add(k);
+    edges.push({ a: n.id, b: l, el: el("line", { class:"edge" }, edgeLayer) });
+  }
+})();
+
+// ---------- physics simulation ----------
+// Each node floats with velocity; a soft spring pulls it toward its per-lens
+// anchor (so ARMS rings / Departments clusters / poles still read), nodes repel
+// locally, edges act as springs, and hovering pushes the neighbourhood open.
+const P = { anchorK:0.020, repulse:1500, repRange:210, edgeK:0.030, edgeRest:64, damp:0.82, vcap:7, hoverPush:5200, hoverRange:270 };
+const sim = {};
+ALL.forEach(n => { const p = n.pos[lens]; sim[n.id] = { x:p[0], y:p[1], vx:0, vy:0, fixed:false }; });
+function isVisible(n) { return !(n.kind === "asset-root" && lens !== "departments" && lens !== "arms"); }
+let visList = ALL.filter(isVisible);
+function refreshVis() { visList = ALL.filter(isVisible); }
+
+function tick() {
+  const rr2 = P.repRange * P.repRange, hr2 = P.hoverRange * P.hoverRange;
+  const h = hovered && sim[hovered];
+  for (const n of visList) {
+    const s = sim[n.id]; if (s.fixed) continue;
+    const a = n.pos[lens];
+    s.vx += (a[0] - s.x) * P.anchorK;
+    s.vy += (a[1] - s.y) * P.anchorK;
+  }
+  for (let i = 0; i < visList.length; i++) {
+    const A1 = sim[visList[i].id];
+    for (let j = i + 1; j < visList.length; j++) {
+      const B1 = sim[visList[j].id];
+      let dx = A1.x - B1.x, dy = A1.y - B1.y, d2 = dx*dx + dy*dy;
+      if (d2 > rr2 || d2 < 0.01) continue;
+      const f = P.repulse / d2, d = Math.sqrt(d2), fx = dx/d*f, fy = dy/d*f;
+      if (!A1.fixed) { A1.vx += fx; A1.vy += fy; }
+      if (!B1.fixed) { B1.vx -= fx; B1.vy -= fy; }
+    }
+  }
+  for (const e of edges) {
+    const na = byId[e.a], nb = byId[e.b];
+    if (!isVisible(na) || !isVisible(nb)) continue;
+    const A1 = sim[e.a], B1 = sim[e.b];
+    let dx = B1.x - A1.x, dy = B1.y - A1.y, d = Math.hypot(dx, dy) || 0.01;
+    const diff = (d - P.edgeRest) / d * P.edgeK;
+    if (!A1.fixed) { A1.vx += dx * diff; A1.vy += dy * diff; }
+    if (!B1.fixed) { B1.vx -= dx * diff; B1.vy -= dy * diff; }
+  }
+  if (h) {
+    for (const n of visList) {
+      const s = sim[n.id]; if (s === h || s.fixed) continue;
+      let dx = s.x - h.x, dy = s.y - h.y, d2 = dx*dx + dy*dy;
+      if (d2 > hr2 || d2 < 0.01) continue;
+      const f = P.hoverPush / d2, d = Math.sqrt(d2);
+      s.vx += dx/d*f; s.vy += dy/d*f;
+    }
+  }
+  for (const n of visList) {
+    const s = sim[n.id]; if (s.fixed) { s.vx = s.vy = 0; continue; }
+    s.vx *= P.damp; s.vy *= P.damp;
+    if (s.vx > P.vcap) s.vx = P.vcap; else if (s.vx < -P.vcap) s.vx = -P.vcap;
+    if (s.vy > P.vcap) s.vy = P.vcap; else if (s.vy < -P.vcap) s.vy = -P.vcap;
+    s.x += s.vx; s.y += s.vy;
+  }
+  render();
+}
+function render() {
+  for (const n of ALL) {
+    const g = nodeEls[n.id], s = sim[n.id];
+    if (!isVisible(n)) { g.style.display = "none"; continue; }
+    g.style.display = "";
+    g.setAttribute("transform", `translate(${s.x.toFixed(2)},${s.y.toFixed(2)})`);
+  }
+  const focus = hovered || selected;
+  const nbr = focus ? neighbors(focus) : null;
+  for (const e of edges) {
+    const na = byId[e.a], nb = byId[e.b];
+    if (!isVisible(na) || !isVisible(nb)) { e.el.style.display = "none"; continue; }
+    e.el.style.display = "";
+    const sa = sim[e.a], sb = sim[e.b];
+    e.el.setAttribute("x1", sa.x.toFixed(2)); e.el.setAttribute("y1", sa.y.toFixed(2));
+    e.el.setAttribute("x2", sb.x.toFixed(2)); e.el.setAttribute("y2", sb.y.toFixed(2));
+    const hot = focus && (e.a === focus || e.b === focus);
+    e.el.classList.toggle("hot", !!hot);
+  }
+  if (focus && sim[focus]) {
+    const s = sim[focus];
+    halo.setAttribute("cx", s.x.toFixed(2)); halo.setAttribute("cy", s.y.toFixed(2));
+    halo.style.opacity = "0.9";
+  } else halo.style.opacity = "0";
+}
+let neighborCache = { id:null, set:null };
+function neighbors(id) {
+  if (neighborCache.id === id) return neighborCache.set;
+  const n = byId[id], set = new Set([id]);
+  if (n) { (n.links||[]).forEach(l => set.add(l)); (n.inbound||[]).forEach(l => set.add(l)); }
+  neighborCache = { id, set };
+  return set;
+}
+function applyClasses() {
+  const focus = hovered || selected;
+  const nbr = focus ? neighbors(focus) : null;
+  for (const n of ALL) {
+    const g = nodeEls[n.id];
+    const searchHidden = g.dataset.nomatch === "1";
+    const faded = (nbr && !nbr.has(n.id)) || searchHidden;
+    g.classList.toggle("lo", !!faded);
+    g.classList.toggle("hot", focus ? nbr.has(n.id) : false);
+    g.classList.toggle("selected", n.id === selected);
+  }
+}
+requestAnimationFrame(function loop() { tick(); requestAnimationFrame(loop); });
+
+// ---------- camera fly-to ----------
+let flying = null;
+function flyTo(id) {
+  const s = sim[id]; if (!s) return;
+  const w = stage.clientWidth, h = stage.clientHeight;
+  const cx = (w - (drawer.classList.contains("open") ? 480 : 0)) / 2, cy = h / 2;
+  const ts = Math.min(2.4, Math.max(view.s, 1.5));
+  flying = { fromS:view.s, fromTx:view.tx, fromTy:view.ty, toS:ts, cx, cy, id, t:0 };
+}
+requestAnimationFrame(function fly() {
+  if (flying) {
+    flying.t = Math.min(1, flying.t + 0.06);
+    const e = 1 - Math.pow(1 - flying.t, 3), s = sim[flying.id];
+    const ns = flying.fromS + (flying.toS - flying.fromS) * e;
+    const tx = flying.cx - s.x * ns, ty = flying.cy - s.y * ns;
+    view.s = ns; view.tx = flying.fromTx + (tx - flying.fromTx) * e; view.ty = flying.fromTy + (ty - flying.fromTy) * e;
+    applyView();
+    if (flying.t >= 1) flying = null;
+  }
+  requestAnimationFrame(fly);
+});
+
+// ---------- markdown (escape-first) ----------
+function md(src) {
+  const lines = esc(src).split("\n");
+  let html = "", inCode = false, inList = false, tableBuf = [];
+  const flushTable = () => {
+    if (!tableBuf.length) return;
+    html += "<table>" + tableBuf.map(r => "<tr>" + r.split("|").slice(1, -1).map(c => `<td>${inline(c.trim())}</td>`).join("") + "</tr>").join("") + "</table>";
+    tableBuf = [];
+  };
+  const inline = s => s
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+    .replace(/\*([^*]+)\*/g, "<i>$1</i>")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<span class="link">$1</span>');
+  for (const line of lines) {
+    if (line.startsWith("```")) { flushTable(); html += inCode ? "</pre>" : "<pre>"; inCode = !inCode; continue; }
+    if (inCode) { html += line + "\n"; continue; }
+    if (/^\|.*\|/.test(line)) { if (!/^\|\s*-{2,}/.test(line.replace(/\|/g, "| "))&& !/^\|\s*---/.test(line)) tableBuf.push(line); continue; }
+    flushTable();
+    if (inList && !/^\s*[-*] /.test(line)) { html += "</ul>"; inList = false; }
+    if (/^### /.test(line)) html += `<h3>${inline(line.slice(4))}</h3>`;
+    else if (/^## /.test(line)) html += `<h2>${inline(line.slice(3))}</h2>`;
+    else if (/^# /.test(line)) html += `<h1>${inline(line.slice(2))}</h1>`;
+    else if (/^---+$/.test(line.trim())) html += "<hr>";
+    else if (/^\s*[-*] /.test(line)) { if (!inList) { html += "<ul>"; inList = true; } html += `<li>${inline(line.replace(/^\s*[-*] /, ""))}</li>`; }
+    else if (/^> /.test(line)) html += `<p style="border-left:2px solid #F95000;padding-left:9px;color:#bbb">${inline(line.slice(2))}</p>`;
+    else if (line.trim()) html += `<p>${inline(line)}</p>`;
+  }
+  if (inList) html += "</ul>";
+  if (inCode) html += "</pre>";
+  flushTable();
+  return html;
+}
+
+// ---------- drawer ----------
+const drawer = document.getElementById("drawer"), dHead = document.getElementById("drawer-head"),
+      dActs = document.getElementById("drawer-actions"), dBody = document.getElementById("drawer-body");
+function connHtml(n) {
+  const out = (n.links || []).map(l => byId[l] ? `<span class="conn" data-id="${esc(l)}">→ ${esc(byId[l].title)}</span>` : "").join("");
+  const inn = (n.inbound || []).map(l => byId[l] ? `<span class="conn" data-id="${esc(l)}">← ${esc(byId[l].title)}</span>` : "").join("");
+  return out + inn ? `<h3>Connections</h3>${out}${inn}` : "";
+}
+function wireConns() { dBody.querySelectorAll(".conn").forEach(e => e.addEventListener("click", () => select(e.dataset.id, true))); }
+function select(id, fly) {
+  const prev = selected;
+  if (prev && sim[prev]) sim[prev].fixed = false;
+  selected = id;
+  const n = byId[id]; if (!n) return;
+  if (sim[id]) sim[id].fixed = true;      // pin the focused node so it stays put
+  neighborCache = { id:null, set:null };
+  applyClasses();
+  if (fly !== false) flyTo(id);
+  if (n.kind === "asset-root") {
+    dHead.innerHTML = `<div class="kind">asset folder</div><h2>${esc(n.title)}</h2><div class="meta-line">${Number(n.count).toLocaleString()} files · ${esc((n.topExts||[]).join(", "))}</div>`;
+    dActs.innerHTML = "";
+    dBody.innerHTML = `<p>Every file here is indexed — ask <code>/brain</code> "find my …" to locate one, or zoom into this cluster.</p>`;
+  } else {
+    dHead.innerHTML = `<div class="kind">${esc(n.type)}${n.department ? " · " + esc(n.department) : ""}${n.worldElement ? " · " + esc(n.worldElement) : ""}</div>
+      <h2>${esc(n.title)}</h2>
+      <div class="meta-line">${esc(n.id)}${n.updated ? " · " + esc(n.updated) : ""}</div>
+      ${(n.behaviors||[]).map(b => `<span class="tag">${esc(b)}</span>`).join("")}`;
+    let acts = "";
+    if (n.id.startsWith("wiki/")) {
+      acts += `<a href="../${esc(n.id)}" target="_blank">Open file</a><button id="copy">Copy path</button>`;
+      if (serverMode) acts += `<button id="edit">✏️ Edit</button><button id="editor">Open in editor</button><button id="reveal">Reveal</button>`;
+    }
+    dActs.innerHTML = acts;
+    dBody.innerHTML = (n.content ? md(n.content) : "<p style='color:#6B6B6B'>No embedded content for this node type.</p>") + connHtml(n);
+    wireConns();
+    const c = document.getElementById("copy");
+    if (c) c.addEventListener("click", () => navigator.clipboard.writeText("~/second-brain/" + n.id)
+      .then(() => { c.textContent = "Copied ✓"; setTimeout(() => c.textContent = "Copy path", 1200); })
+      .catch(() => { c.textContent = "Copy failed"; }));
+    const ed = document.getElementById("edit"); if (ed) ed.addEventListener("click", () => editMode(n));
+    const op = document.getElementById("editor"); if (op) op.addEventListener("click", () => api("POST", "api/open", { id: n.id }));
+    const rv = document.getElementById("reveal"); if (rv) rv.addEventListener("click", () => api("POST", "api/open", { id: n.id, reveal: true }));
+  }
+  drawer.classList.add("open");
+}
+function deselect() {
+  if (selected && sim[selected]) sim[selected].fixed = false;
+  selected = null; neighborCache = { id:null, set:null };
+  applyClasses(); drawer.classList.remove("open");
+}
+async function editMode(n) {
+  const r = await api("GET", "api/file?id=" + encodeURIComponent(n.id));
+  if (!r || r.error) { dBody.innerHTML = `<p class="err">${esc(r && r.error || "load failed")}</p>`; return; }
+  dBody.innerHTML = `<textarea id="ta"></textarea><div style="margin-top:8px;display:flex;gap:8px"><button id="save" style="border:1px solid #79C753;color:#79C753;background:none;border-radius:6px;padding:5px 14px;cursor:pointer">Save</button><button id="cancel" style="border:1px solid #333;color:#fff;background:none;border-radius:6px;padding:5px 14px;cursor:pointer">Cancel</button></div><div class="err" id="save-err"></div>`;
+  document.getElementById("ta").value = r.content;
+  document.getElementById("cancel").addEventListener("click", () => select(n.id, false));
+  document.getElementById("save").addEventListener("click", async () => {
+    const out = await api("POST", "api/save", { id: n.id, content: document.getElementById("ta").value });
+    if (out && out.ok) {
+      const parts = document.getElementById("ta").value.split(/^---$/m);
+      n.content = (parts.length >= 3 ? parts.slice(2).join("---") : document.getElementById("ta").value).trim();
+      select(n.id, false);
+    } else document.getElementById("save-err").textContent = (out && out.error) || "save failed";
+  });
+}
+
+// ---------- tasks drawer (server mode) ----------
+async function showTasks() {
+  const r = await api("GET", "api/tasks");
+  if (!r) return;
+  dHead.innerHTML = `<div class="kind">tasks</div><h2>To-Do List</h2>`;
+  dActs.innerHTML = "";
+  const row = (t, buttons) => `<div class="task-line" data-idx="${t.idx}"><span class="txt">${esc(t.line.replace(/^- \[ \] /, ""))}</span>${buttons}</div>`;
+  dBody.innerHTML = `<h3>Active</h3>` +
+    (r.active.map(t => row(t, `<button data-op="done">Done</button><button data-op="kill">Kill</button>`)).join("") || "<p style='color:#6B6B6B'>Nothing active.</p>") +
+    `<h3>Proposed</h3>` +
+    (r.proposed.map(t => row(t, `<button data-op="confirm">Keep</button><button data-op="kill">Kill</button>`)).join("") || "<p style='color:#6B6B6B'>Nothing proposed.</p>");
+  dBody.querySelectorAll(".task-line button").forEach(b => b.addEventListener("click", async () => {
+    await api("POST", "api/task", { op: b.dataset.op, idx: Number(b.closest(".task-line").dataset.idx) });
+    showTasks();
+  }));
+  drawer.classList.add("open");
+}
+
+// ---------- server detection ----------
+async function api(method, url, body) {
+  try {
+    const r = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+    return await r.json();
+  } catch (e) { return null; }
+}
+(async () => {
+  const p = await api("GET", "api/ping");
+  if (p && p.ok) {
+    serverMode = true;
+    const m = document.getElementById("mode"); m.textContent = "workbench"; m.classList.add("live");
+    document.getElementById("tasks-btn").classList.add("on");
+  }
+})();
+
+// ---------- search ----------
+function runSearch(q) {
+  const tokens = q.toLowerCase().split(/[^a-z0-9]+/).filter(t => t.length > 1);
+  let hits = 0;
+  for (const n of ALL) {
+    const hay = `${n.title} ${(n.keywords || []).join(" ")} ${n.id}`.toLowerCase();
+    const hit = !tokens.length || tokens.every(t => hay.includes(t));
+    nodeEls[n.id].dataset.nomatch = hit ? "0" : "1";
+    if (hit && tokens.length) hits++;
+  }
+  applyClasses();
+  document.getElementById("matchcount").textContent = tokens.length ? hits + " match" + (hits === 1 ? "" : "es") : "";
+}
+
+// ---------- pointer: hover / drag nodes, pan space, zoom ----------
+function nodeNear(sx, sy) {
+  const [wx, wy] = toWorld(sx, sy);
+  const hitR = 16 / view.s;    // ~constant screen hit radius
+  let best = null, bestD = hitR * hitR;
+  for (const n of visList) {
+    const s = sim[n.id], dx = s.x - wx, dy = s.y - wy, d2 = dx*dx + dy*dy;
+    if (d2 < bestD) { bestD = d2; best = n.id; }
+  }
+  return best;
+}
+let drag = null, pan = null, downAt = null;
+stage.addEventListener("mousedown", e => {
+  if (e.target.closest("#drawer")) return;
+  downAt = { x:e.clientX, y:e.clientY, moved:false };
+  const id = nodeNear(e.clientX, e.clientY);
+  if (id) { drag = { id }; sim[id].fixed = true; stage.classList.add("grabbing-node"); }
+  else { pan = { x:e.clientX, y:e.clientY }; stage.classList.add("panning"); }
+});
+window.addEventListener("mousemove", e => {
+  if (downAt && (Math.abs(e.clientX - downAt.x) + Math.abs(e.clientY - downAt.y)) > 4) downAt.moved = true;
+  if (drag) {
+    const [wx, wy] = toWorld(e.clientX, e.clientY);
+    const s = sim[drag.id]; s.x = wx; s.y = wy; s.vx = s.vy = 0;
+    return;
+  }
+  if (pan) { view.tx += e.clientX - pan.x; view.ty += e.clientY - pan.y; pan = { x:e.clientX, y:e.clientY }; applyView(); return; }
+  // hover
+  if (e.target.closest("#drawer")) return;
+  const id = nodeNear(e.clientX, e.clientY);
+  stage.classList.toggle("over-node", !!id);
+  if (id !== hovered) { hovered = id; neighborCache = { id:null, set:null }; applyClasses(); }
+});
+window.addEventListener("mouseup", e => {
+  if (drag) {
+    const wasClick = downAt && !downAt.moved;
+    const id = drag.id;
+    sim[id].fixed = false;
+    drag = null; stage.classList.remove("grabbing-node");
+    if (wasClick) select(id, true);
+  } else if (pan) {
+    const wasClick = downAt && !downAt.moved;
+    pan = null; stage.classList.remove("panning");
+    if (wasClick) deselect();
+  }
+  downAt = null;
+});
+stage.addEventListener("wheel", e => {
+  if (e.target.closest("#drawer")) return;
+  e.preventDefault();
+  const f = e.deltaY < 0 ? 1.13 : 1 / 1.13;
+  const ns = Math.min(6, Math.max(0.3, view.s * f));
+  const rect = stage.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  view.tx = mx - (mx - view.tx) * (ns / view.s);
+  view.ty = my - (my - view.ty) * (ns / view.s);
+  view.s = ns; applyView();
+}, { passive: false });
+
+// ---------- chrome (tabs, legend, meta) ----------
+const tabs = document.getElementById("tabs");
+for (const [key, label] of LENSES) {
+  const b = document.createElement("button");
+  b.textContent = label; b.dataset.lens = key;
+  if (key === lens) b.classList.add("active");
+  b.addEventListener("click", () => {
+    lens = key;
+    tabs.querySelectorAll("button").forEach(x => x.classList.toggle("active", x.dataset.lens === key));
+    refreshVis(); drawDecor(); applyView();   // anchors change; physics morphs nodes over
+  });
+  tabs.appendChild(b);
+}
+document.getElementById("tasks-btn").addEventListener("click", showTasks);
+document.getElementById("search").addEventListener("input", e => runSearch(e.target.value));
+document.getElementById("close").addEventListener("click", deselect);
+const counts = Object.entries(D.counts).map(([k, v]) => `${k}:${v}`).join(" · ");
+document.getElementById("meta").textContent = `${D.generated} · ${counts} · ${A.dots.rootIdx.length.toLocaleString()} assets`;
+document.getElementById("legend").innerHTML =
+  `<i class="first" style="background:#FFFFFF"></i>page <i style="background:#F95000"></i>decision <i style="background:#F9A825"></i>skill ✦ <i style="background:#4DC9FF"></i>app ⬡ <i style="background:#c9a227"></i>routine <i style="background:#79C753"></i>hub · dots = your ${A.dots.rootIdx.length.toLocaleString()} files`;
+
+window.addEventListener("resize", () => { sizeCanvas(); fitView(); applyView(); });
+sizeCanvas(); fitView(); drawDecor(); buildNodes(); applyView();
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "_comment": "The 4th lens. Rename these 12 elements to whatever framework organizes YOUR life or business, and the galaxy will lay your notes out on it. Coordinates are a 4-wide x 3-tall grid on a 1600x1000 canvas. 'rules' match against a note's path + keywords (first match wins); typeDefaults and departmentDefaults catch whatever the rules miss. Label the lens in brain.config.json -> customLens.label.",
+
+  "elements": {
+    "Story":     [260, 220], "Voice":     [620, 220], "Rules":     [980, 220], "Obstacle": [1340, 220],
+    "People":    [260, 520], "Health":    [620, 520], "Systems":   [980, 520], "Reach":    [1340, 520],
+    "Community": [260, 820], "Knowledge": [620, 820], "Money":     [980, 820], "Legacy":   [1340, 820]
+  },
+
+  "layers": {
+    "FOUNDATION": ["Story", "Voice", "Rules", "Obstacle"],
+    "ARCHITECTURE": ["People", "Health", "Systems", "Reach"],
+    "LEGACY": ["Community", "Knowledge", "Money", "Legacy"]
+  },
+
+  "rules": [
+    {"match": "decisions/|rules|policy", "element": "Rules"},
+    {"match": "brand|positioning|voice|language", "element": "Voice"},
+    {"match": "journal|health|reflection", "element": "Health"},
+    {"match": "learning/|remembered/", "element": "Knowledge"},
+    {"match": "people/|connections", "element": "People"},
+    {"match": "community|member|audience", "element": "Community"},
+    {"match": "offer|client|deal|pricing|revenue|pulse", "element": "Money"},
+    {"match": "content|launch|publish|youtube|newsletter", "element": "Reach"},
+    {"match": "origin|story|about-me", "element": "Story"},
+    {"match": "framework|vision|long-term", "element": "Legacy"}
+  ],
+
+  "typeDefaults": {"person": "People", "skill": "Systems", "app": "Systems", "routine": "Systems", "task": "Rules"},
+  "departmentDefaults": {"business": "Money", "content": "Reach", "projects": "Systems", "personal": "Health"}
+}

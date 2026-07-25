@@ -1,0 +1,138 @@
+{
+  "threeSpeakers": [
+    {
+      "id": "log-1",
+      "title": "Morning sync",
+      "contents": [
+        {
+          "type": "heading2",
+          "content": "Morning sync"
+        },
+        {
+          "type": "blockquote",
+          "content": "Okay so let's talk through the launch checklist for next week.",
+          "speakerName": "Sam",
+          "speakerIdentifier": "user"
+        },
+        {
+          "type": "blockquote",
+          "content": "I think the thumbnail needs the result front and center, not the reaction face.",
+          "speakerName": "Jordan",
+          "speakerIdentifier": null
+        },
+        {
+          "type": "blockquote",
+          "content": "Agreed — and we should lock the A/B test by hour 48.",
+          "speakerName": "Riley",
+          "speakerIdentifier": null,
+          "children": [
+            {
+              "type": "blockquote",
+              "content": "Yeah.",
+              "speakerName": "Sam",
+              "speakerIdentifier": "user"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "ownerOnly": [
+    {
+      "id": "log-2",
+      "title": "Voice memo to self",
+      "contents": [
+        {
+          "type": "blockquote",
+          "content": "Note to self: re-render the intro with the shorter cold open.",
+          "speakerName": "You",
+          "speakerIdentifier": "user"
+        },
+        {
+          "type": "blockquote",
+          "content": "And check the retention curve at 0:23.",
+          "speakerName": "Sam",
+          "speakerIdentifier": "user"
+        }
+      ]
+    }
+  ],
+  "mixedCasingAcrossLogs": [
+    {
+      "id": "log-3",
+      "title": "Coffee chat",
+      "contents": [
+        {
+          "type": "blockquote",
+          "content": "The community call moved to Thursday.",
+          "speakerName": "Jordan",
+          "speakerIdentifier": null
+        }
+      ]
+    },
+    {
+      "id": "log-4",
+      "title": "Afternoon walk",
+      "contents": [
+        {
+          "type": "blockquote",
+          "content": "We should record the World Builder session this weekend.",
+          "speakerName": "JORDAN",
+          "speakerIdentifier": null
+        }
+      ]
+    }
+  ],
+  "unnamedSpeakers": [
+    {
+      "id": "log-5",
+      "title": "Store run",
+      "contents": [
+        {
+          "type": "blockquote",
+          "content": "That'll be twelve fifty.",
+          "speakerName": "Speaker 2",
+          "speakerIdentifier": null
+        },
+        {
+          "type": "blockquote",
+          "content": "Have a good one.",
+          "speakerName": "Unknown",
+          "speakerIdentifier": null
+        },
+        {
+          "type": "blockquote",
+          "content": "Thanks!",
+          "speakerName": "",
+          "speakerIdentifier": null
+        },
+        {
+          "type": "blockquote",
+          "content": "speaker 14 says something long enough to be context.",
+          "speakerName": "speaker 14",
+          "speakerIdentifier": null
+        }
+      ]
+    }
+  ],
+  "messyContext": [
+    {
+      "id": "log-6",
+      "title": "Long ramble",
+      "contents": [
+        {
+          "type": "blockquote",
+          "content": "Ok",
+          "speakerName": "Maya",
+          "speakerIdentifier": null
+        },
+        {
+          "type": "blockquote",
+          "content": "So the plan | is:\nfirst we ship the pilot,\nthen we open it to the whole membership, and then we run a six week cohort with weekly build sessions and office hours every Friday afternoon.",
+          "speakerName": "Maya",
+          "speakerIdentifier": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+# ── SECRETS. Never remove these three lines. ────────────────────────────────
+.env
+.env.*
+!.env.example
+*.secret
+
+# ── Generated caches. Rebuilt from wiki/ by one command; never commit. ──────
+indexes/
+viz/data.js
+system/logs/
+system/nightshift/sparks/
+system/nightshift/ledger.jsonl
+
+# ── Your own content, if you want the code public and the notes private. ───
+# Uncomment these to keep your notes off GitHub entirely:
+# wiki/
+# raw/
+# inbox/
+# tasks/
+
+# ── Downloaded media / transcripts (large, regenerable) ────────────────────
+raw/transcripts/
+raw/articles/
+raw/corpus/
+
+node_modules/
+.DS_Store
+._*

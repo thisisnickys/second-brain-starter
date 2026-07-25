@@ -1,0 +1,29 @@
+{
+  "owner": {
+    "name": "Sam",
+    "pronouns": { "subject": "they", "object": "them", "possessive": "their" },
+    "voice": "direct, warm, no-BS, coach-like — talking TO the owner, never about them"
+  },
+
+  "departments": ["business", "content", "projects", "personal"],
+  "departmentHints": {
+    "business": "ventures, products, money, clients, deals",
+    "content": "creating content — video, writing, social, newsletter",
+    "projects": "the big named things you are building right now",
+    "personal": "everything else — health, family, faith, journal, people"
+  },
+  "departmentColors": {
+    "business": "#F95000",
+    "content": "#B980FF",
+    "projects": "#79C753",
+    "personal": "#4DC9FF"
+  },
+
+  "behaviors": ["move", "breathe", "create", "learn", "connect"],
+  "behaviorsLabel": "Five Behaviors",
+
+  "customLens": {
+    "label": "Life Map",
+    "mapFile": "viz/world-map.json"
+  }
+}

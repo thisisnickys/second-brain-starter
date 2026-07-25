@@ -1,0 +1,26 @@
+{
+  "apps": [
+    {"id": "app:notion", "title": "Notion", "via": "MCP + REST ingest"},
+    {"id": "app:google-drive", "title": "Google Drive", "via": "MCP"},
+    {"id": "app:gmail", "title": "Gmail", "via": "MCP"},
+    {"id": "app:google-calendar", "title": "Google Calendar", "via": "MCP"},
+    {"id": "app:limitless", "title": "Limitless AI", "via": "MCP"},
+    {"id": "app:kit", "title": "Kit (newsletter)", "via": "MCP"},
+    {"id": "app:heartbeat", "title": "Heartbeat (community)", "via": "MCP"},
+    {"id": "app:supabase", "title": "Supabase", "via": "MCP"},
+    {"id": "app:vidiq", "title": "vidIQ", "via": "MCP"},
+    {"id": "app:higgsfield", "title": "Higgsfield", "via": "MCP"},
+    {"id": "app:heygen", "title": "HeyGen + HyperFrames", "via": "MCP"},
+    {"id": "app:apify", "title": "Apify", "via": "MCP"},
+    {"id": "app:zapier", "title": "Zapier (ElevenLabs, Stripe, ...)", "via": "MCP"},
+    {"id": "app:cloudflare", "title": "Cloudflare Workers", "via": "MCP"},
+    {"id": "app:github", "title": "GitHub", "via": "gh CLI"},
+    {"id": "app:telegram", "title": "Telegram channel", "via": "Claude Code channel (Phase 4)"}
+  ],
+  "routines": [
+    {"id": "routine:run-ingest", "title": "Brain nightly ingest", "schedule": "cron candidate 02:30", "links": ["skill:brain"]},
+    {"id": "routine:log-rotate", "title": "Log rotation", "schedule": "cron 05:00"},
+    {"id": "routine:morning-reminder", "title": "Morning Telegram nudge", "schedule": "cron 09:00"},
+    {"id": "routine:journal-sync", "title": "Journal sync (manual daily)", "schedule": "manual", "links": ["skill:journal-sync"]}
+  ]
+}

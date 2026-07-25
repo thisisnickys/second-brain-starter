@@ -1,0 +1,10 @@
+{
+  "_comment": "Folders the file catalog indexes as POINTERS (path, name, size, modified date). Nothing is copied, moved, or uploaded — the catalog just makes your own files findable by the brain. Point these at real folders on your Mac or an external drive; delete any root you do not have. An external drive that is unplugged is skipped, not an error.",
+  "roots": [
+    {"path": "~/Documents", "label": "documents", "department": "personal"},
+    {"path": "~/Desktop", "label": "desktop", "department": "personal"},
+    {"path": "~/Movies", "label": "video", "department": "content"}
+  ],
+  "excludeDirs": ["node_modules", ".git", "__pycache__", "venv", ".Trash", "Library"],
+  "excludeFiles": ["^\\._", "^\\.DS_Store$", "^~\\$"]
+}
