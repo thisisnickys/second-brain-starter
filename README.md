@@ -32,7 +32,7 @@ The search index, the graph, the galaxy — all of it is rebuilt from `wiki/` by
 bash setup.sh
 ```
 
-Then open **[SETUP.md](SETUP.md)** and follow it in order. (Lions Behavior members: the same guide, with pictures and the mistakes section, lives in Notion — *Build Your Second Brain — The Lions Behavior Guide*.) It assumes you have never opened a terminal before. About 30 minutes to a working brain, plus another 20 for the phone.
+Then open **[SETUP.md](SETUP.md)** and follow it in order. It assumes you have never opened a terminal before. About 30 minutes to a working brain, plus another 20 for the phone.
 
 ## What's in the box
 
@@ -74,6 +74,16 @@ tests/                 528 tests. Run: node --test "tests/**/*.test.js"
 - The Telegram bot has a hard allowlist — one user id, yours.
 - The AI is called with a narrow `--allowedTools` list: read + your own brain search. Nothing that writes, deletes, or reaches another service.
 - Every write to `wiki/` passes the linter first, and rolls back if it fails.
+
+## Support, and what this repo is not
+
+This is shared as-is, the way it actually runs. It is not a product and there is no support attached to it.
+
+- **Issues and pull requests are open** — if you find a real bug, open one. It may or may not get fixed quickly.
+- **No guarantees, no roadmap, no SLA.** Fork it and make it yours; that's the intended path.
+- **Lions Behavior members:** ask in the community instead of opening an issue. You'll get a faster and better answer there.
+
+Before opening an issue, run `node system/doctor.js` and read [SETUP.md](SETUP.md) — between them they answer most of what comes up.
 
 ## License
 

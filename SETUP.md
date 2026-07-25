@@ -125,7 +125,7 @@ claude
 
 Follow the login prompt in your browser, then type `/exit` to leave.
 
-> **Cost note, and this one matters.** Use a Claude subscription, not API credits. See mistake #6 below — running on pay-per-token API billing quietly cost about **$40 a day** before it got caught.
+> **Cost note, and this one matters.** Use a Claude subscription, not API credits. See mistake #6 below — running on pay-per-token API billing can quietly cost more per day than the subscription costs per month, and nothing warns you.
 
 ### 1.4 — Install the media tools (optional, but you'll want them)
 
@@ -643,11 +643,11 @@ The bot was running under launchd, and a second copy got started by hand for tes
 
 **The rule:** exactly one bot. To restart it, use `launchctl kickstart -k`, never `node bot.js`.
 
-### 3. iCloud silently deleted two weeks of health data — cost: Jun 26 to Jul 9, permanently
+### 3. iCloud silently deleted two weeks of imported data — cost: two weeks, permanently
 
-Health export files were dropping into iCloud Drive. iCloud "evicts" the contents of files it thinks are unused, leaving a placeholder. Every read failed with a cryptic `EDEADLK: resource deadlock avoided` — and the ingest script treated that error as "no data today" and moved on quietly. Two weeks were gone before anyone noticed the reports were thin.
+Daily export files from a phone app were dropping into an iCloud Drive folder. iCloud "evicts" the contents of files it thinks are unused, leaving a placeholder. Every read failed with a cryptic `EDEADLK: resource deadlock avoided` — and the ingest script treated that error as "no data today" and moved on quietly. Two weeks were gone before anyone noticed the reports had gotten thin. There was no recovering it — that data existed nowhere else.
 
-**The rules:** never store the source of truth in a folder that evicts files. And **never let an error path masquerade as an empty result** — "I couldn't read it" and "there was nothing there" must look different, loudly. A related late-sync bug ate July 13 permanently before a 7-day backfill was added.
+**The rules:** never store the source of truth in a folder that evicts files. And **never let an error path masquerade as an empty result** — "I couldn't read it" and "there was nothing there" must look different, loudly. A related late-sync bug permanently ate another day before a 7-day backfill was added.
 
 ### 4. The same thing captured five times — cost: the whole point of the system
 
@@ -661,9 +661,9 @@ An audit on July 22 found one topic saved as five separate notes, another as six
 
 **The rule:** routing is deterministic and checked in a specific order — keywords first, then explicit requests, then questions, then everything else. When something lands in the wrong place, fix the router; do not just retrain yourself to phrase things the way the machine likes.
 
-### 6. Burning ~$40/day on API credits — cost: real money, quietly
+### 6. Paying per-token when a subscription already covered it — cost: real money, quietly
 
-The whole engine was running on pay-per-token API billing instead of a subscription. The trap: **any `.env` that gets sourced and contains `ANTHROPIC_API_KEY` silently flips everything back to paid API billing**, even after you think you've switched.
+The whole engine was running on pay-per-token API billing instead of the subscription that was already being paid for. The daily burn was real money, and it accrued silently for weeks. The trap: **any `.env` that gets sourced and contains `ANTHROPIC_API_KEY` silently flips everything back to paid API billing**, even after you think you've switched.
 
 **The rule:** delete unused API keys and verify they're actually dead. Keep exactly one live key if a product genuinely needs it, and know which one it is.
 
