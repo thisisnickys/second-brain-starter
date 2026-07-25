@@ -1,6 +1,6 @@
 'use strict';
 // "brain dump" → a distilled journal entry, NOT a plan. the owner says or types
-// "brain dump" followed by whatever happened / what she learned; it's cleaned
+// "brain dump" followed by whatever happened / what they learned; it's cleaned
 // into bullets and filed as one note per day at
 // wiki/personal/journal/<date>-brain-dump.md (sections append through the
 // day). The evening report picks it up automatically — learnedToday() scans
@@ -53,7 +53,7 @@ function fmtTime(d) {
 
 function buildDumpPrompt(body) {
   return [
-    "the owner just sent a BRAIN DUMP — a spoken or typed journal entry about what happened today and what she learned.",
+    "the owner just sent a BRAIN DUMP — a spoken or typed journal entry about what happened today and what they learned.",
     'This is NOT a to-do list. Do NOT extract tasks, reminders, or scheduling — capture knowledge and events only.',
     '',
     'Brain dump:',
@@ -64,9 +64,9 @@ function buildDumpPrompt(body) {
     'Output ONLY a JSON object (no prose, no code fence) with exactly these keys:',
     '{',
     '  "title": 3-8 word title for this entry (what it was about),',
-    '  "bullets_md": markdown bullets ("- ") of what happened / what she learned / ideas worth keeping — keep names, numbers, tools, and specifics; clean up the spoken rambling but keep her meaning; 2-10 bullets,',
+    '  "bullets_md": markdown bullets ("- ") of what happened / what they learned / ideas worth keeping — keep names, numbers, tools, and specifics; clean up the spoken rambling but keep their meaning; 2-10 bullets,',
     '  "apply": ONE sentence — the most useful way to use this — or "" when nothing is actionable,',
-    '  "ideas": array of 0-3 short strings — ONLY genuine ideas she voiced (something she could build, make, try, or say — especially anything she flags with "I have an idea"); [] when the dump has none. Each 1 crisp sentence.',
+    '  "ideas": array of 0-3 short strings — ONLY genuine ideas they voiced (something they could build, make, try, or say — especially anything they flags with "I have an idea"); [] when the dump has none. Each 1 crisp sentence.',
     '}'
   ].join('\n');
 }
@@ -164,15 +164,15 @@ function listDumpSections(rootDir, sinceDateStr) {
 function buildIdeasBriefPrompt(sections, days) {
   const dumps = sections.map(s => `### ${s.date}\n${s.body}`).join('\n\n');
   return [
-    `You are briefing the owner on the IDEAS she captured in her brain-dump journal over the last ${days} day${days === 1 ? '' : 's'}.`,
+    `You are briefing the owner on the IDEAS they captured in their brain-dump journal over the last ${days} day${days === 1 ? '' : 's'}.`,
     '',
     'Her brain dumps (newest first):',
     '"""',
     dumps,
     '"""',
     '',
-    'Write a short Telegram-friendly brief of her IDEAS only:',
-    '- An idea = something she could build, make, try, or say — skip status updates, events, tasks, and plain facts she learned.',
+    'Write a short Telegram-friendly brief of their IDEAS only:',
+    '- An idea = something they could build, make, try, or say — skip status updates, events, tasks, and plain facts they learned.',
     '- Group duplicates/related ideas together.',
     '- Format: numbered list, each entry "**<short idea name>** (<date>) — one line on what it is / why it matters." Bold with **, no headings.',
     '- End with one line: which 1-2 ideas look most worth acting on and why.',

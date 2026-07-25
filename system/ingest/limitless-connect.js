@@ -1,11 +1,11 @@
 'use strict';
-// Limitless connect pass (Path A — docs/specs/2026-07-08-limitless-connect.md).
-// Detects who the owner actually talked to on a given day from her Limitless
+// Limitless connect pass — turns meeting/lifelog speakers into connect credit.
+// Detects who the owner actually talked to on a given day from their Limitless
 // pendant lifelogs and writes a lint-clean connections note tagged
 // behaviors: [connect], so CONNECT gets credited in the evening rollup
 // without manual capture. No people detected => no note (that IS the signal).
 //
-// GATED to known people (Jul 22 2026 audit): ungated, this logged consumed
+// GATED to known people: ungated, this logged consumed
 // media as relationships — a sermon, Marques Brownlee from a video — because
 // any named lifelog speaker counted. Now a speaker only counts if they match
 // a person page in wiki/personal/people/ (created via the bot's `person:`
@@ -36,7 +36,7 @@ function loadEnv() {
   return env;
 }
 
-// Is this speaker the owner herself, or an unnamed/unidentified speaker?
+// Is this speaker the owner themselves, or an unnamed/unidentified speaker?
 function isExcludedSpeaker(name, identifier) {
   if (identifier === 'user') return true;
   const n = String(name == null ? '' : name).trim();

@@ -54,12 +54,12 @@ test('prompts embed the source text', () => {
 test('queueSkillRequest kind system-ask writes the system-ask shape', () => {
   const dir = path.join(tmp(), 'skill-requests');
   const r = queueSkillRequest('Track my sauna sessions in the health note', null,
-    { dir, dateStr: '2026-07-22', kind: 'system-ask', source: '3 Pages journal' });
+    { dir, dateStr: '2026-07-22', kind: 'system-ask', source: 'notion journal' });
   const text = fs.readFileSync(r.path, 'utf8');
   assert.match(text, /^kind: system-ask$/m);
   assert.match(text, /# System ask — /);
   assert.match(text, /SECOND BRAIN ITSELF/);
-  assert.match(text, /\*\*Source:\*\* 3 Pages journal/);
+  assert.match(text, /\*\*Source:\*\* notion journal/);
   assert.match(text, /^status: pending$/m);
 });
 

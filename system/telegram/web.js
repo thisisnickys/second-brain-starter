@@ -180,7 +180,7 @@ function buildDistillPrompt(meta, content) {
   const c = String(content == null ? '' : content);
   const capped = c.length > PROMPT_CONTENT_CAP ? c.slice(0, PROMPT_CONTENT_CAP) + '\n[content truncated]' : c;
   return [
-    "You are distilling something the owner just read online (a tweet, thread, post, or article) into a note for her second brain.",
+    "You are distilling something the owner just read online (a tweet, thread, post, or article) into a note for their second brain.",
     'The content may include a multi-post thread ("Post 1: …") and the full text of linked articles ("--- Linked article … ---") — cover the WHOLE scope, not just the first post.',
     '',
     `Source: "${meta.title}" — ${meta.siteName || 'the web'} (${meta.url})`,

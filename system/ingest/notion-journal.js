@@ -1,7 +1,7 @@
 'use strict';
 // Journal pull — if you journal in NOTION rather than in Telegram, the brain
-// has no idea you did it unless something goes and looks. (That exact gap is
-// why this file exists: "I journaled today and it didn't even pick that up.")
+// has no idea you did it unless something goes and looks. That exact gap is
+// why this file exists: journaling that goes uncredited stops feeling worth it.
 // This pulls a day's entry into wiki/personal/journal/<date>-journal.md; the
 // evening report runs it for TODAY and nudges when no entry exists, the
 // nightly ingest runs it for YESTERDAY to catch late-night entries.
@@ -100,7 +100,7 @@ function extractText(blocks) {
 function buildNote(date, text) {
   return [
     '---',
-    `title: 3 Pages journal ${date}`,
+    `title: Journal ${date}`,
     'department: personal',
     'tags: [journal, three-pages]',
     'behaviors: [breathe, learn]',
@@ -108,7 +108,7 @@ function buildNote(date, text) {
     `updated: ${date}`,
     '---',
     '',
-    `# 3 Pages — ${date}`,
+    `# Journal — ${date}`,
     '',
     text,
     ''
@@ -193,7 +193,7 @@ async function main() {
 
   if (!entry || text.length < 3) {
     // A row with an empty body doesn't count as journaling.
-    console.log(`notion-journal: none ${date} — no 3 Pages entry`);
+    console.log(`notion-journal: none ${date} — no entry`);
     process.exit(0);
   }
 

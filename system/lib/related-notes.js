@@ -1,6 +1,6 @@
 'use strict';
 // Related-capture linking — the Jul 22 2026 audit found the same topic minted
-// as five separate notes (GPT-5.6 ×5, streamer-growth ×6) with ZERO authored
+// as five separate notes (one topic ×5, another ×6) with ZERO authored
 // links anywhere in the wiki. On each new Telegram capture, this finds the
 // most similar existing learning note by title-token overlap and stamps a
 // `**Related:**` line into the fresh note, so knowledge threads instead of
@@ -14,7 +14,7 @@ const ROOT_DIR = path.join(__dirname, '..', '..');
 const STOP = new Set([
   'the', 'and', 'for', 'with', 'how', 'what', 'why', 'when', 'you', 'your',
   'from', 'this', 'that', 'are', 'was', 'not', 'its', 'into', 'about', 'her',
-  'his', 'she', 'him', 'they', 'them', 'can', 'will', 'just', 'one', 'two',
+  'his', 'she', 'him', 'they', 'them', 'their', 'can', 'will', 'just', 'one', 'two',
   'new', 'all', 'out', 'get', 'use', 'using', 'via', 'vs'
 ]);
 
@@ -58,7 +58,7 @@ function findRelated(title, rootDir, opts = {}) {
         let overlap = 0;
         for (const t of mine) if (theirs.has(t)) overlap++;
         // ≥2 shared always required; a third of the smaller title's tokens on
-        // top of that for longer titles (half was too strict — "GPT-5.6" alone
+        // top of that for longer titles (half was too strict — a model name alone
         // splits into two tokens, and real dupes share 3 of 7, not 4 of 7).
         const bar = Math.max(2, Math.ceil(Math.min(mine.size, theirs.size) / 3));
         if (overlap >= bar && (!best || overlap > best.overlap)) {

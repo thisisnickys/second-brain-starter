@@ -1,6 +1,6 @@
 'use strict';
 const { OWNER } = require('../lib/config.js');
-// Deal-desk verdict handling. Claude sessions (/oppty) push "deal cards" to
+// Deal-desk verdict handling. A Claude session pushes "deal cards" to
 // Telegram — first line `💼 <Brand> — <ask>`, footer `Reply: agree / counter
 // $X / decline / skip`. When the owner replies, this module files that verdict onto
 // the matching note in wiki/business/opportunities/ (Log append + Status

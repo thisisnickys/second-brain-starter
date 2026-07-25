@@ -1,12 +1,12 @@
 'use strict';
-// Mines the owner's reflections and journal entries for the two things the Jul 22
-// 2026 audit found rotting in the archive:
+// Mines reflections and journal entries for the two things an audit found
+// rotting unread in the archive:
 //   1. SYSTEM ASKS — feature/fix requests aimed at the second brain itself.
-//      ("I gotta fix the second brain to ask the connect question at night"
-//      sat in a weekly reflection with nothing acting on it.) These queue
-//      into skill-requests/ so the next Claude session builds them.
-//   2. PEOPLE she names in a connect answer — upserted as person pages, which
-//      fills the empty people layer AND arms the Limitless connect gate.
+//      People write "the brain should ask me X at night" in a reflection and
+//      then nothing acts on it, ever. These queue into skill-requests/ so the
+//      next Claude session builds them.
+//   2. PEOPLE named in a connect answer — upserted as person pages, which
+//      fills the empty people layer AND arms the meeting-transcript gate.
 // Tool-less claude -p, same pattern as dump/idea distills. Fail-soft callers.
 const { execFile } = require('child_process');
 const path = require('path');
@@ -17,30 +17,31 @@ const ROOT_DIR = path.join(__dirname, '..', '..');
 
 function buildReflectionPrompt(question, answer) {
   return [
-    'the owner answered her nightly reflection question. Extract ONLY what is explicitly there.',
+    'The owner answered their nightly reflection question. Extract ONLY what is explicitly there.',
     '',
     `Question: "${String(question == null ? '' : question)}"`,
-    'Her answer:',
+    'The answer:',
     '"""',
     String(answer == null ? '' : answer),
     '"""',
     '',
     'Output ONLY a JSON object (no prose, no code fence):',
     '{"people": [{"name": "...", "context": "..."}], "system_asks": ["..."]}',
-    '- people: actual humans SHE personally connected with (talked, texted, called, met),',
-    '  per her answer. Use the name as she said it ("my mom" → "Mom"). NOT media figures',
-    '  she watched or listened to, NOT people merely mentioned in passing. context = one',
+    '- people: actual humans the owner personally connected with (talked, texted, called, met),',
+    '  per the answer. Use the name as they said it (a relationship word like "my sister"',
+    '  becomes "Sister"). NOT media figures they watched or listened to, and NOT people',
+    '  merely mentioned in passing. context = one',
     '  short clause on what happened. [] when none.',
-    '- system_asks: explicit requests to change, fix, or add something to her second-brain',
+    '- system_asks: explicit requests to change, fix, or add something to the second-brain',
     '  system / bot / reports ("it should ask me…", "fix the brain to…", "I want it to',
-    '  track…"). One sentence each, her meaning kept. [] when none — do NOT invent asks.'
+    '  track…"). One sentence each, meaning kept. [] when none — do NOT invent asks.'
   ].join('\n');
 }
 
 function buildJournalPrompt(text) {
   return [
     "This is the owner's journal entry for today. Extract ONLY explicit requests to change,",
-    'fix, or add something to her SECOND-BRAIN system / Telegram bot / reports',
+    'fix, or add something to the SECOND-BRAIN system / Telegram bot / reports',
     '("it should ask me…", "fix the brain to…", "I want it to track…").',
     'General life goals, tasks, and content ideas are NOT system asks.',
     '',
@@ -54,7 +55,9 @@ function buildJournalPrompt(text) {
   ].join('\n');
 }
 
-const NON_NAMES = /^(me|you|he|she|him|her|it|they|them|us|we|myself|someone|somebody|anyone|no one|nobody|everyone|everybody|people|friends?|family|god|jesus|owner)$/i;
+// Junk "names" the model sometimes returns. This is a FILTER, so it lists
+// every pronoun there is — it has nothing to do with the owner's pronouns.
+const NON_NAMES = /^(me|you|he|she|him|her|it|they|them|us|we|myself|yourself|himself|herself|themselves|someone|somebody|anyone|no one|nobody|everyone|everybody|people|friends?|family|god|jesus|owner)$/i;
 
 // Model reply → { people: [{name, context}], system_asks: [string] },
 // sanitized hard: bad JSON → empty result, junk names/asks dropped.

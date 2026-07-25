@@ -21,10 +21,10 @@ const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'audit-fix-'));
 
 /* --------------------------- fix 1: list-add --------------------------- */
 
-test('parseListAdd catches polite list-add phrasings (incl. the sunscreen loss)', () => {
+test('parseListAdd catches polite list-add phrasings', () => {
   assert.strictEqual(
-    parseListAdd('Can you put on my test list to buy the super goop sunscreen for the face?'),
-    'buy the super goop sunscreen for the face');
+    parseListAdd('Can you put on my test list to buy new running shoes for the trip?'),
+    'buy new running shoes for the trip');
   assert.strictEqual(parseListAdd('can you add call the vet to my task list'), 'call the vet');
   assert.strictEqual(parseListAdd('add driver registration to my to-do list.'), 'driver registration');
   assert.strictEqual(parseListAdd('Okay so, can you put on my to-do list, order new mic'), 'order new mic');
@@ -38,9 +38,9 @@ test('parseListAdd leaves non-list messages alone', () => {
 });
 
 test('routeVoice and classify route list-adds to todo', () => {
-  const v = routeVoice('Can you put on my test list to buy the super goop sunscreen?');
+  const v = routeVoice('Can you put on my test list to buy new running shoes?');
   assert.strictEqual(v.kind, 'todo');
-  assert.strictEqual(v.payload, 'buy the super goop sunscreen');
+  assert.strictEqual(v.payload, 'buy new running shoes');
   const c = classify('can you add call the vet to my task list');
   assert.strictEqual(c.kind, 'todo');
   assert.strictEqual(c.payload, 'call the vet');

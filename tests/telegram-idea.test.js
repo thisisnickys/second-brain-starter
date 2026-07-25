@@ -160,7 +160,7 @@ test('reflectionBehaviors credits connect only on a real answer to the connect a
   assert.deepStrictEqual(reflectionBehaviors(q, ''), ['learn', 'breathe']);
   // a non-connect question never credits connect
   assert.deepStrictEqual(
-    reflectionBehaviors('What do you want tomorrow to build on?', 'Called my mom'),
+    reflectionBehaviors('What do you want tomorrow to build on?', 'Called my brother'),
     ['learn', 'breathe']
   );
 });

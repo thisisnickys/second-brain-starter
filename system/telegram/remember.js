@@ -14,9 +14,9 @@ const { DEPARTMENTS, OWNER, departmentMenu, ownerLine } = require('../lib/config
 
 function buildRememberPrompt(text) {
   return [
-    'the owner told her second brain to remember something. Turn it into a small knowledge-base note.',
+    'the owner told their second brain to remember something. Turn it into a small knowledge-base note.',
     '',
-    'She said:',
+    'They said:',
     '"""',
     String(text == null ? '' : text),
     '"""',
@@ -26,7 +26,7 @@ function buildRememberPrompt(text) {
     '  "title": short descriptive title for the fact,',
     `  "department": one of ${DEPARTMENTS.join(' | ')} (${departmentMenu()}),`,
     '  "tags": 2-5 lowercase kebab-case topic tags,',
-    '  "note_md": the fact restated cleanly in markdown (a sentence or short bullets — keep every concrete detail she gave: names, numbers, dates, links)',
+    '  "note_md": the fact restated cleanly in markdown (a sentence or short bullets — keep every concrete detail they gave: names, numbers, dates, links)',
     '}'
   ].join('\n');
 }

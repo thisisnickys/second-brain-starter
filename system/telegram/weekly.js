@@ -1,7 +1,8 @@
 'use strict';
+const { OWNER, ownerLine } = require('../lib/config.js');
 // Weekly report — Sunday 10pm: the week in bullets (personal · health ·
 // work & learn), a blind-spot read ("what am I not seeing in myself"), and ONE
-// proposed focus for the coming week she's asked to commit to. Replaces the
+// proposed focus for the coming week, asked as a commitment. Replaces the
 // Sunday 11:59pm evening report (launchd fires evening.js Mon–Sat only) and
 // absorbs its housekeeping: health-note refresh + TickTick truth sync run
 // here first, so Sunday's check-offs fold into the week's totals.
@@ -254,23 +255,26 @@ function buildWeeklyPrompt(data) {
       ? data.journals.map(j => `--- ${j.date} ${j.name} ---\n${j.text}`).join('\n\n')
       : '(no journal entries this week)',
     '',
-    'BUSINESS PULSE (latest /biz-pulse snapshot, may be a few days old):',
+    'BUSINESS PULSE (latest business-snapshot note, may be a few days old):',
     data.pulse ? `--- ${data.pulse.date} ---\n${data.pulse.excerpt}` : '(no recent pulse note)',
     '',
-    "Write in the owner's voice: direct, warm, no-BS, coach-like — talking TO the owner.",
-    'the owner is a woman (she/her). NEVER address her with masculine terms — no "brother",',
-    '"bro", "man", "king", "sir", or the like. "the owner" or plain "you" is always right.',
+    `Write in ${OWNER.name}'s voice: ${OWNER.voice}.`,
+    // Pronouns come from brain.config.json, never guessed from a name — getting
+    // this wrong in a message someone reads at 10pm on a Sunday is not a small thing.
+    ownerLine(),
+    `Address ${OWNER.pronouns.object} as "you" or by name. Never use gendered terms of address`,
+    '("brother", "bro", "man", "king", "sir", "girl") — they are wrong as often as they are right.',
     'Return ONLY a JSON object, no code fence, shaped exactly:',
     '{"text": "...", "speech": "...", "question": "..."}',
     `- "text": the Telegram message, BULLET-POINT style. Start "🗓 Weekly report — ${w.label}". Sections, in order:`,
-    '  👤 Personal — 2-4 bullets: what the week actually felt like per her own words (journals/',
-    '  reflections), who she connected with. Quote her sparingly, never clinically.',
+    '  👤 Personal — 2-4 bullets: what the week actually felt like in your own words (journals/',
+    '  reflections), who you connected with. Quote sparingly, never clinically.',
     '  🏃 Health — 2-4 bullets: steps, exercise, HRV, workouts; call any balance flag out plainly.',
-    '  💼 Work & Learn — 2-4 bullets: what shipped (count + the highlights that mattered), what she',
-    '  learned (takeaways, not raw titles), the pulse headline if there is one.',
+    '  💼 Work & Learn — 2-4 bullets: what shipped (count + the highlights that mattered), what you',
+    '  learned (takeaways, not raw titles), the business headline if there is one.',
     '  🪞 What you\'re not seeing — 2-4 bullets, the heart of this report: contradictions between',
-    '  what she SAID this week (journals/reflections) and what she DID (tasks/health/behaviors),',
-    '  behaviors she barely touched, captures she never applied, flags she may have normalized.',
+    '  what you SAID this week (journals/reflections) and what you DID (tasks/health/behaviors),',
+    '  behaviors you barely touched, captures you never applied, flags you may have normalized.',
     '  Honest and specific, grounded in the data above — a mirror, never a scolding.',
     '  🎯 Focus of the week — ONE proposed focus for the coming week with a one-line "because",',
     '  chosen from the strongest signal in the data (a flag, a contradiction, an open thread).',
@@ -281,15 +285,15 @@ function buildWeeklyPrompt(data) {
     '  no bullet lists. You MAY drop in at most 3-4 ElevenLabs v3 audio tags in square brackets',
     '  where they genuinely fit, e.g. [warm] [impressed] [thoughtful] — sparingly, or none.',
     '  Walk through personal, health, work-and-learn, then the blind-spot read, then the proposed',
-    '  focus — and END by asking her the question below, naturally, as the closing line.',
-    '- "question": ONE question asking her to COMMIT to the proposed focus or call a different',
-    '  one — name the proposed focus explicitly so she can say yes or redirect. Never yes/no',
-    '  phrasing alone: invite her to say what the week is FOR.'
+    '  focus — and END by asking the question below, naturally, as the closing line.',
+    '- "question": ONE question asking for a COMMIT to the proposed focus or a different',
+    '  one — name the proposed focus explicitly so it can be confirmed or redirected. Never yes/no',
+    '  phrasing alone: invite an answer about what the week is FOR.'
   ].filter(l => l !== null).join('\n');
 }
 
 // No-LLM fallback so the report always arrives. Can't propose a focus without
-// the model — it lays the week out and asks her to set one.
+// the model — it lays the week out and asks their to set one.
 function plainWeekly(data) {
   const w = data.window;
   const lines = [`🗓 Weekly report — ${w.label}`];

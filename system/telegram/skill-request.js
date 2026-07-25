@@ -83,7 +83,7 @@ function queueSkillRequest(requestText, capture, opts = {}) {
   }
   lines.push(
     ...(systemAsk
-      ? ['This is a feature/fix request for the SECOND BRAIN ITSELF, mined from her',
+      ? ['This is a feature/fix request for the SECOND BRAIN ITSELF, mined from a',
          'journal or reflection. Implement it with the /second-brain skill loaded,',
          'test it, then flip `status:` above to `done` and note what shipped.']
       : ['Build this as a real Claude skill (skill-creator flow), test it, then flip',

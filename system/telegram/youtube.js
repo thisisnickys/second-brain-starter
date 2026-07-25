@@ -63,7 +63,7 @@ function buildDistillPrompt(meta, transcript) {
     ? t.slice(0, PROMPT_TRANSCRIPT_CAP) + '\n[transcript truncated]'
     : t;
   return [
-    "You are distilling a YouTube video the owner just watched into a note for her second brain.",
+    "You are distilling a YouTube video the owner just watched into a note for their second brain.",
     '',
     `Video: "${meta.title}" by ${meta.channel} (${meta.url})`,
     '',

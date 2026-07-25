@@ -157,14 +157,14 @@ function sampleData() {
   };
 }
 
-test('buildWeeklyPrompt carries every section, the she/her guard, and the focus ask', () => {
+test('buildWeeklyPrompt carries every section, the pronoun guard, and the focus ask', () => {
   const p = buildWeeklyPrompt(sampleData());
   for (const want of [
     'WEEKLY report for the week of Jul 13–19',
     'shipped the fix', 'Fresh learning', 'felt scattered', 'movement collapsed',
     'move 1/7', 'MRR steady',
     'What you\'re not seeing', 'Focus of the week',
-    'she/her', 'COMMIT to the proposed focus',
+    'they/them', 'Never use gendered terms of address', 'COMMIT to the proposed focus',
     '300-450 word'
   ]) assert.ok(p.includes(want), `prompt missing: ${want}`);
 });

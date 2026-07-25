@@ -211,7 +211,8 @@ test('buildBriefPrompt carries every gathered section', () => {
   assert.ok(p.includes('Warm'));
   assert.ok(p.includes('connect'));
   assert.ok(p.includes('Under 1800 characters'));
-  assert.ok(p.includes('she/her'));
+  assert.ok(p.includes('they/them'));
+  assert.ok(p.includes('Never use gendered terms of address'));
 });
 
 test('parseBrief extracts {text} and rejects junk', () => {

@@ -1,8 +1,8 @@
 'use strict';
 // Plan-session persistence — the bot's conversational plan sessions used to
 // live only in the in-memory `sessions` Map, and the bot restarts ~2×/day
-// (network blips, kickstarts). A restart between the owner's voice plan and her
-// "yes" silently ate the plan (the Jul 19 2026 TJ-Instagram task loss). Every
+// (network blips, kickstarts). A restart between a spoken plan and the
+// "yes" silently ate the whole plan — every item in it, gone. Every
 // session mutation now mirrors to disk; startup rehydrates SAME-DAY sessions
 // (a plan is a plan for today — yesterday's proposal must not resurrect).
 const fs = require('fs');

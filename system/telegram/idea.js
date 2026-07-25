@@ -93,7 +93,7 @@ function listBank(rootDir, limit) {
 
 function buildIdeaPrompt(body) {
   return [
-    'the owner just voiced an IDEA she wants saved in her idea bank. Distill the spoken rambling',
+    'the owner just voiced an IDEA they want saved in their idea bank. Distill the spoken rambling',
     'into the idea itself — keep names, tools, numbers, and the mechanism; drop the filler.',
     '',
     'Raw idea:',

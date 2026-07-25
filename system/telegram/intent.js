@@ -46,14 +46,14 @@ function parseSkillRequest(text) {
 
 // "Can you put/add … on my (to-do/task) list" — spoken-polite todo phrasing.
 // It reads as a question, so it used to fall to ask-the-brain and the task was
-// lost (the Jul 17 2026 sunscreen todo). "test list" is included deliberately:
+// lost entirely. "test list" is included deliberately:
 // Whisper mishears "task list" as "test list".
 const LIST_ADD_PATTERNS = [
-  // "can you put on my task list (to) buy sunscreen"
+  // "can you put on my task list (to) buy milk"
   /^(?:can|could|will|would)\s+you\s+(?:please\s+)?(?:put|add|stick)\s+(?:this\s+|that\s+)?(?:on|to|onto)\s+(?:my|the)\s+(?:to-?do|todo|task|test)?\s*list\b[,.:;!?\s]*(?:to\s+)?(.*)$/i,
-  // "can you add buy sunscreen to my list"
+  // "can you add buy milk to my list"
   /^(?:can|could|will|would)\s+you\s+(?:please\s+)?(?:put|add|stick)\s+(.+?)\s+(?:on|to|onto)\s+(?:my|the)\s+(?:to-?do|todo|task|test)?\s*list\b/i,
-  // "add buy sunscreen to my to-do list"
+  // "add buy milk to my to-do list"
   /^(?:please\s+)?(?:put|add|stick)\s+(.+?)\s+(?:on|to|onto)\s+(?:my|the)\s+(?:to-?do|todo|task|test)?\s*list\b/i
 ];
 
@@ -80,7 +80,7 @@ const WH_RE = /^(what|what's|when|when's|where|where's|who|who's|whose|why|how|h
 
 // Auxiliary + subject ("is that…", "can you…", "do I…"). The subject list is
 // deliberately narrow: "Do the laundry" must NOT read as a question.
-const AUX_SUBJECT_RE = /^(is|are|was|were|am|do|does|did|can|could|will|would|should|shall|may|might|have|has|had|don't|doesn't|didn't|isn't|aren't|can't|couldn't|won't|wouldn't|shouldn't)\s+(i|you|we|they|he|she|it|there|that|this|my|your)\b/i;
+const AUX_SUBJECT_RE = /^(is|are|was|were|am|do|does|did|can|could|will|would|should|shall|may|might|have|has|had|don't|doesn't|didn't|isn't|aren't|can't|couldn't|won't|wouldn't|shouldn't)\s+(i|you|we|they|he|they|it|there|that|this|my|your)\b/i;
 
 // True when the transcript reads as a short lookup question for the brain
 // rather than day-planning speech.

@@ -232,7 +232,7 @@ test('buildReportPrompt carries the behaviors line and resurface note', () => {
   }, NOW);
   assert.match(p, /Behaviors: move ✓ · breathe ✗ · create ✗ · learn ✗ · connect ✗/);
   assert.match(p, /never shame/);
-  assert.match(p, /30 days ago she captured "Old gem"/);
+  assert.match(p, /30 days ago they captured "Old gem"/);
   assert.match(p, /Ship the thing\./);
   // Legacy shape (no behaviors/resurface) still builds.
   const legacy = buildReportPrompt({ done: [], open: [], learned: [], captures: [], health: null }, NOW);

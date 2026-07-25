@@ -1,7 +1,7 @@
 'use strict';
 // Second-brain health check. Deterministic, read-only, zero-dep.
 // Run: node system/doctor.js [--json] [--tests]
-// Exit 0 unless any check FAILS. Wrapped by the /brain-doctor skill.
+// Exit 0 unless any check FAILS.
 //
 // Checks: .env integrity · launchd jobs · log error scan · index freshness
 // · git state · system/logs litter · inbox backlog · (--tests) full suite.
@@ -97,7 +97,7 @@ function recencyCheck({ name, mtime, now, graceMs }) {
   return { name: label, level: 'warn', detail: `${Math.round(age / 3600000)}h ago — machine asleep at fire time? Run it manually to catch up` };
 }
 
-// Doctor verifies process health, but the Jun 26–Jul 9 2026 health-note gap
+// Doctor verifies process health, but a two-week health-note gap once
 // was a DATA gap every process check missed (ingest green, launchd clean).
 // Yesterday's note is written by the 2:30am ingest AND the 10pm evening
 // report refresh — if it's still missing, something in the chain is off.

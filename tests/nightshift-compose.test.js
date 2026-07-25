@@ -75,9 +75,12 @@ test('parseOutput: decoy sparks-shaped object BEFORE the real one — last wins'
   assert.strictEqual(r.found, true);
 });
 
-test('buildPrompt carries the novelty bar (taste-test tuning Jul 9)', () => {
+test('buildPrompt carries the novelty bar', () => {
   const p = buildPrompt(INPUTS);
   assert.match(p, /novelty bar/i);
   assert.match(p, /MIRROR, not a spark/);
-  assert.match(p, /could she have written this spark herself from memory/i);
+  assert.match(p, /could they have written this spark from memory/i);
+  // Pronouns must come from brain.config.json, never be hardcoded.
+  assert.match(p, /\(they\/them\)/);
+  assert.doesNotMatch(p, /\bshe\b|\bher\b/i);
 });

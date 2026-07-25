@@ -76,7 +76,7 @@ function parseArgs(argv) {
     else if (a === '--write') opts.write = true;
     // --mark-used id1,id2 — record queue items as consumed so they never
     // resurface (the audit found the queue regenerated daily but NOTHING ever
-    // marked anything used; /pipeline and /brain-weekly call this now).
+    // marked anything used; call this whenever you draft from the queue).
     else if (a === '--mark-used' && argv[i + 1]) { opts.markUsed = argv[++i].split(',').map(s => s.trim()).filter(Boolean); }
   }
   return opts;

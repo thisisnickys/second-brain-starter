@@ -4,7 +4,7 @@
 // Reads health notes (wiki/personal/health/*.md), task archives (tasks/archive/*.md
 // `done:` stamps), wiki `updated:` frontmatter, inbox captures, and connect signals
 // (people notes + <date>-connections.md journal notes), buckets everything by ISO
-// week, and fires simple threshold flags. NO claude calls — the /brain-weekly skill
+// week, and fires simple threshold flags. NO claude calls — the weekly report
 // interprets this output.
 //
 // CLI: node system/balance.js [--weeks N] [--json]

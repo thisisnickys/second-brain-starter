@@ -1,4 +1,5 @@
 'use strict';
+const { ownerLine } = require('../lib/config.js');
 // Evening report — "how did the day go": tasks done, what got learned, what's
 // still open, one overall read. Sent to Telegram as text + a voice note
 // (ElevenLabs, `say` fallback — see tts.js). Runs two ways:
@@ -218,7 +219,7 @@ function gather(rootDir, today) {
     // ONE learning note from ~30 days ago worth asking "did you apply it?"
     // (null when none in window or all already resurfaced).
     resurface: pickResurface(rootDir, today, loadResurfaceState(rootDir)),
-    // Did she journal today? the owner journals in Notion (3 Pages) — the pull
+    // Did they journal today? the owner may journal in Notion — the pull
     // above files it here when an entry exists. No file = no journal = nudge.
     journaled: fs.existsSync(path.join(rootDir, 'wiki', 'personal', 'journal', `${today}-three-pages.md`))
   };
@@ -267,19 +268,21 @@ function buildReportPrompt(data, now) {
     '',
     'RESURFACE (a learning captured ~30 days ago, worth checking in on):',
     data.resurface
-      ? `${data.resurface.daysAgo} days ago she captured "${data.resurface.title}". Its Apply line was: ${data.resurface.apply}`
+      ? `${data.resurface.daysAgo} days ago they captured "${data.resurface.title}". Its Apply line was: ${data.resurface.apply}`
       : '(none to resurface tonight)',
     '',
-    'JOURNAL (her 3 Pages journal in Notion):',
-    data.journaled ? 'She journaled today.' : 'NO journal entry today.',
+    'JOURNAL (their Notion journal entry for today):',
+    data.journaled ? 'They journaled today.' : 'NO journal entry today.',
     ...(data.systemAsks && data.systemAsks.length
       ? ['', `SYSTEM ASKS mined from today's journal (already queued for the next Claude session):`,
          ...data.systemAsks.map(a => `- ${a}`)]
       : []),
     '',
     "Write in the owner's voice: direct, warm, no-BS, coach-like — talking TO the owner.",
-    'the owner is a woman (she/her). NEVER address her with masculine terms — no "brother",',
-    '"bro", "man", "king", "sir", or the like. "the owner" or plain "you" is always right.',
+    // Pronouns come from brain.config.json, never guessed from a name.
+    ownerLine(),
+    'Address the owner as "you" or by name. Never use gendered terms of address',
+    '("brother", "bro", "man", "king", "sir", "girl") — they are wrong as often as they are right.',
     'Return ONLY a JSON object, no code fence, shaped exactly:',
     '{"text": "...", "speech": "...", "question": "..."}',
     `- "text": the Telegram message. Start "🌙 Evening report — ${dayLabel(now)}".`,
@@ -299,11 +302,11 @@ function buildReportPrompt(data, now) {
       : null,
     !data.journaled
       ? '  📓 journal: include this reminder, warm but direct: "Hey — I noticed you didn\'t journal' +
-        '\n  today. Go do that right." (her 3 Pages page in Notion). Have the speech mention it too,' +
-        '\n  near the close. If she DID journal, skip this section entirely.'
+        '\n  today. Go do that right." (in their Notion journal). Have the speech mention it too,' +
+        '\n  near the close. If they DID journal, skip this section entirely.'
       : null,
     data.systemAsks && data.systemAsks.length
-      ? '  🛠 system asks: one line confirming her journal asks were caught and queued, e.g.' +
+      ? '  🛠 system asks: one line confirming their journal asks were caught and queued, e.g.' +
         '\n  "Caught it: <short paraphrase> — queued for the next Claude session."'
       : null,
     '  🔜 still open (top handful only), then a 1-2 sentence honest read on the day. Under 2500 chars.',
@@ -313,9 +316,9 @@ function buildReportPrompt(data, now) {
     '  You MAY drop in at most 2-3 ElevenLabs v3 audio tags in square brackets where they',
     '  genuinely fit, e.g. [impressed] [warm] [laughs softly] — sparingly, or none at all.',
     '  Cover what got done, the plan score, the movement, the one or two learnings that matter,',
-    '  and END by asking her the question below, naturally, as the closing line.',
+    '  and END by asking the question below, naturally, as the closing line.',
     '- "question": ONE pointed reflection question about TODAY specifically — grounded in the',
-    "  data above (a task she pushed, a learning she filed, the plan-score gap, the movement),",
+    "  data above (a task they pushed, a learning they filed, the plan-score gap, the movement),",
     '  the kind a sharp coach asks. Never generic ("how was your day"), never yes/no.',
     data.behaviors && data.behaviors.untouched && data.behaviors.untouched.includes('connect')
       ? '  Connect went untracked today — calls and texts are invisible to the brain, so this is' +
@@ -627,13 +630,13 @@ async function runEveningReport(cfg, opts = {}) {
     // Freshen today's health note from the latest phone sync (best-effort).
     try { await execFileP(process.execPath, [path.join(rootDir, 'system', 'ingest', 'health-ingest.js'), '--date', today], { cwd: rootDir, timeout: 60000 }); }
     catch (err) { console.error('health ingest failed (non-fatal):', err.message); }
-    // Pull today's 3 Pages journal entry from Notion (best-effort) — she
+    // Pull today's journal entry from Notion (best-effort) — they
     // journals there, never in Telegram; no note afterwards = didn't journal.
     try { await execFileP(process.execPath, [path.join(rootDir, 'system', 'ingest', 'notion-journal.js'), '--date', today], { cwd: rootDir, timeout: 45000 }); }
     catch (err) { console.error('notion journal pull failed (non-fatal):', err.message); }
   }
 
-  // System-ask mining (audit Jul 22 2026): her journal keeps filing feature
+  // System-ask mining: journals quietly accumulate feature
   // requests against the second brain that nothing acted on. When today's
   // entry exists, mine it and queue fresh asks into skill-requests/.
   let journalAsks = [];
@@ -647,7 +650,7 @@ async function runEveningReport(cfg, opts = {}) {
         const mined = await extractFromJournal(body, { cwd: rootDir });
         for (const ask of mined.system_asks) {
           if (hasSimilarRequest(ask)) continue;
-          queueSkillRequest(ask, null, { kind: 'system-ask', source: '3 Pages journal' });
+          queueSkillRequest(ask, null, { kind: 'system-ask', source: 'notion journal' });
           journalAsks.push(ask);
         }
       }

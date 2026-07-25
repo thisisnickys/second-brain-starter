@@ -1,4 +1,5 @@
 'use strict';
+const { OWNER, ownerLine } = require('../lib/config.js');
 // Morning brief — the 8am counterpart to evening.js: "here's the day ahead".
 // Gathers (all local + one best-effort TickTick read):
 //   1. tasks/tasks.md            → due-today / overdue Actives + other-Active count
@@ -200,7 +201,7 @@ function behaviorInvitation(untouched, now) {
 
 /* --------------------------- TickTick today's blocks ------------------------- */
 // Best-effort, fail-soft: any API hiccup → null, the brief goes out without
-// blocks. These are her calendar-synced blocks (tasks WITH a startDate today).
+// blocks. These are their calendar-synced blocks (tasks WITH a startDate today).
 
 function ttGet(pathPart, token) {
   return new Promise((resolve, reject) => {
@@ -283,7 +284,7 @@ async function fetchTodaysBlocks(cfg, today, rootDir) {
 /* ---------------------------------- gather ---------------------------------- */
 
 // How stale is the latest biz-pulse note (wiki/business/pulse/<date>.md)?
-// Days since the newest file's date, or null when none exist. /biz-pulse is a
+// Days since the newest file's date, or null when none exist. The pulse is a
 // session skill (needs MCP) so it can't cron — this nudge is what keeps it
 // from silently never happening again (it ran ONCE, Jul 8, then froze).
 function pulseStaleness(rootDir, today) {
@@ -294,11 +295,11 @@ function pulseStaleness(rootDir, today) {
   return daysBetween(today, files[files.length - 1].slice(0, 10));
 }
 
-// Days since the intel feed last produced anything. The research mirror
+// Days since the research feed last produced anything. The research mirror
 // (wiki/content/research/<week>.md) is rewritten every night a Research &
 // Scouting row was edited — so its newest mtime IS the feed's heartbeat.
 // ≥2 days silent = the 7am scan is starving (it died "Not logged in" for
-// 12 straight days in July 2026 and only a digest paragraph noticed).
+// for weeks at a time and nothing loudly says so).
 function researchStaleness(rootDir, nowMs) {
   const dir = path.join(rootDir, 'wiki', 'content', 'research');
   let newest = 0;
@@ -360,7 +361,7 @@ function buildBriefPrompt(data, now) {
     ? `deadline ${d.deadline.date} (${d.deadline.daysLeft === 0 ? 'TODAY' : `${d.deadline.daysLeft}d`}) — ${d.deadlineRaw}`
     : `urgent — ${d.deadlineRaw}`;
   return [
-    `You are writing the owner's MORNING brief for ${dayLabel(now)}. It's ~8am — fire her up for the day.`,
+    `You are writing the owner's MORNING brief for ${dayLabel(now)}. It's ~8am — fire their up for the day.`,
     '',
     'TODAY\'S BLOCKS (TickTick, calendar-synced):',
     data.blocks == null ? '(TickTick unavailable this morning — skip the section)'
@@ -382,15 +383,15 @@ function buildBriefPrompt(data, now) {
     '',
     'BEHAVIOR INVITATION (from yesterday):',
     data.invitation
-      ? `Yesterday "${data.invitation}" went untouched (untouched: ${data.behaviorsUntouched.join(', ')}). Invite her to give it one small moment today — gently, never shame.`
+      ? `Yesterday "${data.invitation}" went untouched (untouched: ${data.behaviorsUntouched.join(', ')}). Invite their to give it one small moment today — gently, never shame.`
       : '(all five behaviors got touched yesterday — you can celebrate that in one clause)',
     '',
     'MAINTENANCE NUDGES (only mention the ones that apply, ONE line each):',
     data.researchDays != null && data.researchDays >= 2
-      ? `- 🚨 ALARM (this one is URGENT, put it near the top): the intel feed has produced NOTHING for ${data.researchDays} days — the 7am research scan is likely failing. Tell her plainly: "check the daily-intel log / run /diagnose".`
+      ? `- 🚨 ALARM (this one is URGENT, put it near the top): the research feed has produced NOTHING for ${data.researchDays} days — the scheduled research scan is likely failing. Say so plainly: "check the ingest log".`
       : null,
     data.pulseDays != null && data.pulseDays > 7
-      ? `- Biz pulse is ${data.pulseDays} days stale — nudge her to run /biz-pulse in a Claude session.`
+      ? `- Business pulse is ${data.pulseDays} days stale — nudge a refresh in a Claude session.`
       : null,
     data.pendingSkills && data.pendingSkills.length
       ? `- ${data.pendingSkills.length} pending build request${data.pendingSkills.length === 1 ? '' : 's'} waiting (${data.pendingSkills.slice(0, 3).join(', ')}) — nudge: say "build my skill requests" in Claude.`
@@ -398,9 +399,11 @@ function buildBriefPrompt(data, now) {
     (data.pulseDays == null || data.pulseDays <= 7) && (!data.pendingSkills || !data.pendingSkills.length)
       ? '(none today)' : null,
     '',
-    "Write in the owner's voice: direct, warm, coach-energy — a morning corner-woman, not a data dump.",
-    'the owner is a woman (she/her). NEVER address her with masculine terms — no "brother",',
-    '"bro", "man", "king", "sir", or the like. "the owner" or plain "you" is always right.',
+    `Write in ${OWNER.name}'s voice: direct, warm, coach-energy — a corner-coach, not a data dump.`,
+    // Pronouns come from brain.config.json, never guessed from a name.
+    ownerLine(),
+    'Address the owner as "you" or by name. Never use gendered terms of address',
+    '("brother", "bro", "man", "king", "sir", "girl") — they are wrong as often as they are right.',
     'Return ONLY a JSON object, no code fence, shaped exactly: {"text": "..."}',
     `- "text": the Telegram message. Start "☀️ Morning brief — ${dayLabel(now)}".`,
     '  Then: today\'s blocks/tasks (tight, scannable), the ONE deal action that matters most',
@@ -453,10 +456,10 @@ function plainBrief(data, now) {
     lines.push('', `🌱 Yesterday "${data.invitation}" went untouched — find one small moment for it today.`);
   }
   if (data.researchDays != null && data.researchDays >= 2) {
-    lines.push('', `🚨 Intel feed has produced nothing for ${data.researchDays} days — the 7am research scan is likely failing. Check the daily-intel log / run /diagnose.`);
+    lines.push('', `🚨 Research feed has produced nothing for ${data.researchDays} days — the scheduled scan is likely failing. Check the ingest log.`);
   }
   if (data.pulseDays != null && data.pulseDays > 7) {
-    lines.push('', `📈 Biz pulse is ${data.pulseDays} days stale — run /biz-pulse in a Claude session.`);
+    lines.push('', `📈 Business pulse is ${data.pulseDays} days stale — refresh it in a Claude session.`);
   }
   if (data.pendingSkills && data.pendingSkills.length) {
     lines.push('', `🛠 ${data.pendingSkills.length} pending build request${data.pendingSkills.length === 1 ? '' : 's'}: ${data.pendingSkills.slice(0, 3).join(', ')} — say "build my skill requests" in Claude.`);

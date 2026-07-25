@@ -157,7 +157,7 @@ test('buildPlanPrompt lists busy blocks with the do-not-double-book instruction'
   assert.match(p, /- 09:00-10:00 Standup \(2026-07-08\)/);
   assert.match(p, /- 13:00-15:00 Deep work \(2026-07-08\)/);
   assert.match(p, /remaining GAPS/);
-  assert.match(p, /KEEP her stated time/);
+  assert.match(p, /KEEP their stated time/);
   assert.match(p, /"overlaps"/);
 });
 

@@ -1,7 +1,7 @@
 'use strict';
 // MVP Telegram bot for the second brain (Phase 4 slice).
 // Zero npm deps — Node built-ins only. Long-polling via Telegram's getUpdates
-// (no webhook, no server to expose). See docs/specs/2026-07-06-visual-second-brain-design.md §10.
+// (no webhook, no server to expose, nothing inbound to your machine).
 
 const fs = require('fs');
 const os = require('os');
@@ -141,7 +141,7 @@ function classify(text) {
   if (m && m[1].trim()) return { kind: 'todo', payload: m[1].trim() };
 
   // "Can you put X on my (task) list" — polite phrasing reads as a question,
-  // but it's a todo (the Jul 17 sunscreen loss).
+  // but it's a todo, and used to be dropped on the floor.
   const listAdd = parseListAdd(t);
   if (listAdd) return { kind: 'todo', payload: listAdd };
 
@@ -351,7 +351,7 @@ function getUpdates(token, offset) {
  * building the full confirm-gate from the design spec (§10).
  * ------------------------------------------------------------------------ */
 
-// "Talk to your captures": her questions often reference the thing she just
+// "Talk to your captures": their questions often reference the thing they just
 // captured without naming it ("can you break down how HE does intros?").
 // The last-capture pointer resolves that — the prompt tells claude what
 // "he/that video/this" means and where the note + transcript live.
@@ -362,7 +362,7 @@ function askPromptWithCapture(text) {
   return [
     `Context: the owner's most recent capture is "${cap.title}"` +
       ` (note: ${cap.wikiPath || 'unknown'}${cap.transcriptPath ? `, full transcript: ${cap.transcriptPath}` : ''}).`,
-    'If her question refers to "he", "she", "they", "that video", "this", or a subject it',
+    'If their question refers to "he", "they", "they", "that video", "this", or a subject it',
     'never names, it means THIS capture — Read the note and the transcript and answer',
     'from them directly. Otherwise answer from the brain as usual.',
     '',
@@ -572,8 +572,8 @@ async function handleQuickTodo(chatId, title, cfg, send) {
   refresh(); // best-effort, ignore failure
 }
 
-// Reflection mining (Jul 22 2026 audit): her answers contain two things that
-// used to rot in the archive — people she connected with (→ person pages,
+// Reflection mining: the answers contain two things that
+// used to rot in the archive — people they connected with (→ person pages,
 // which also arm the Limitless gate) and asks aimed at the second brain
 // itself (→ skill-requests/ for the next Claude session). People are only
 // mined from connect-question answers; system asks from any answer.
@@ -840,7 +840,7 @@ async function handleMessage(update, cfg, deps = {}) {
       clearPendingQuestion();
       refreshDerived().catch(() => {});
       await send(cfg.token, chatId, `🧠 Filed. Your reflection is in the brain (${rel}). Sleep good.`);
-      // Mine the answer for people she connected with + system asks — async,
+      // Mine the answer for people they connected with + system asks — async,
       // never blocks or breaks the goodnight reply.
       mineReflection(chatId, pendingQ.question, answer, cfg, send)
         .catch(err => console.error('reflection mining failed (non-fatal):', err.message));
