@@ -29,10 +29,17 @@ The search index, the graph, the galaxy — all of it is rebuilt from `wiki/` by
 ## Start here
 
 ```bash
+cd ~
+git clone https://github.com/thisisnickys/second-brain-starter.git second-brain
+cd second-brain
 bash setup.sh
 ```
 
+`setup.sh` checks what you have installed, creates your secrets file from the template, builds your first index, and prints exactly what to do next. It changes nothing outside this folder and never overwrites an existing `.env`.
+
 Then open **[SETUP.md](SETUP.md)** and follow it in order. It assumes you have never opened a terminal before. About 30 minutes to a working brain, plus another 20 for the phone.
+
+**Requires Node.js 18+ first** — if you don't have it, [SETUP.md](SETUP.md) Phase 1 walks you through installing it (and everything else) from scratch.
 
 ## What's in the box
 

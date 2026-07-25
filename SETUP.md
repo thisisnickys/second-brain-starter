@@ -11,6 +11,7 @@ Read this top to bottom the first time. Do not skip ahead to the Telegram part; 
 ## Table of contents
 
 - [Phase 0 — What this actually is, and why](#phase-0)
+  - *includes: what to expect, week by week*
 - [Phase 1 — Install the tools](#phase-1)
 - [Phase 2 — Get the code and run setup](#phase-2)
 - [Phase 3 — Make it yours (5 minutes, do not skip)](#phase-3)
@@ -65,6 +66,36 @@ Left side: everything you already have, scattered. Middle: one folder of markdow
 ### An honest warning before you start
 
 The building is the fun part. The habit is the hard part. A perfect system you use twice is worth less than an ugly one you use daily. Phase 4 is the smallest possible version that works — get there, live in it for a week, and only then come back for the automation.
+
+### What to expect, realistically
+
+Nobody does this in one sitting, and you shouldn't try. Here is the shape of it:
+
+| When | What you do | What you have at the end | Feels like |
+|---|---|---|---|
+| **Day 1, ~30 min** | Phases 1–3: install, download, put your name and departments in | A brain that runs on your machine | Setup admin. Not exciting yet. |
+| **Day 1, ~30 min** | Phases 4–6: write real notes, search them, open the galaxy | A working second brain you can see | The first "oh, this is actually mine" moment |
+| **Days 2–7** | Nothing new. Just use it. Write a note a day. | Enough notes that search returns something useful | Slightly boring. This is the important week. |
+| **Day 8, ~20 min** | Phase 7: the Telegram bot | Capture from your phone, from anywhere | This is where most people get hooked |
+| **Day 9, ~15 min** | Phase 8: the schedules | Morning brief, evening report, nightly rebuild | It starts talking to you first |
+| **Week 2–3** | Phase 9, one connection at a time | Your existing files, notes, and archives searchable | Your old stuff suddenly has a search box |
+| **Whenever** | Phase 10: backups | Two copies. Sleep well. | Ten minutes, once |
+
+**Where people actually quit:** somewhere in that boring week between Phase 6 and Phase 7. The system does not feel useful yet because there is nothing in it, and there is nothing in it because it does not feel useful yet. The only way out is to put a week of small, real notes in before you judge it.
+
+**What it costs:** the code is free and has zero dependencies. The only paid thing is a Claude subscription for the distilling and answering — and if you are reading this you probably already have one. Everything else (Telegram, Node, Homebrew) is free.
+
+### What "working" looks like after 90 days
+
+So you know what you are aiming at, because it is not "a lot of notes":
+
+- You stop screenshotting things, because you send them to the bot instead.
+- You answer the evening question without experiencing it as a task.
+- You search your own brain before you search the internet — at least sometimes.
+- You find a decision note from four months ago and it saves you an entire argument.
+- The galaxy shows you a department you have completely neglected, and you feel something about that.
+
+None of that happens in week one. All of it happens if you keep the daily four minutes in the last section of this guide.
 
 ---
 
@@ -147,13 +178,17 @@ pip3 install -U openai-whisper
 
 ### 2.1 — Download it
 
+Copy these three lines one at a time:
+
 ```bash
 cd ~
-git clone <YOUR-REPO-URL-HERE> second-brain
+git clone https://github.com/thisisnickys/second-brain-starter.git second-brain
 cd second-brain
 ```
 
-(If you were given a `.zip` instead, unzip it, rename the folder to `second-brain`, drag it to your home folder, then run `cd ~/second-brain`.)
+What just happened: you moved into your home folder, downloaded the code into a folder called `second-brain`, and stepped inside it. Every command from here on assumes you are inside that folder. If you close the terminal and come back later, `cd ~/second-brain` puts you back.
+
+(If you were given a `.zip` instead, unzip it, rename the folder to `second-brain`, drag it into your home folder, then run `cd ~/second-brain`.)
 
 ### 2.2 — Run setup
 
