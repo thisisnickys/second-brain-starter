@@ -32,7 +32,7 @@ The search index, the graph, the galaxy — all of it is rebuilt from `wiki/` by
 bash setup.sh
 ```
 
-Then open **[SETUP.md](SETUP.md)** and follow it in order. It assumes you have never opened a terminal before. About 30 minutes to a working brain, plus another 20 for the phone.
+Then open **[SETUP.md](SETUP.md)** and follow it in order. (Lions Behavior members: the same guide, with pictures and the mistakes section, lives in Notion — *Build Your Second Brain — The Lions Behavior Guide*.) It assumes you have never opened a terminal before. About 30 minutes to a working brain, plus another 20 for the phone.
 
 ## What's in the box
 
